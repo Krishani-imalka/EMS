@@ -10,11 +10,8 @@ public class HomeController {
     @Autowired
     private UserController userController;
 
-
-//    @GetMapping("/")
-//    public String home() {
-//        return "redirect:/user-management";
-//    }
+    @Autowired
+    private EventController eventController;
 
 
 }
