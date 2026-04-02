@@ -478,6 +478,12 @@ td {
   background: var(--red);
 }
 
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 /* Icon action buttons */
 .icon-actions {
   display: flex;
@@ -553,6 +559,28 @@ td {
 
 .btn-reject {
   background: #dc2626;
+  color: #fff;
+}
+
+.btn-delete {
+  background: #dc2626;
+  color: #fff;
+}
+
+.btn-action {
+  padding: 5px 14px;
+  border-radius: var(--radius-sm);
+  border: none;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter 0.13s, transform 0.1s;
+  letter-spacing: 0.01em;
+}
+
+.btn-authorize {
+  background: #16a34a;
   color: #fff;
 }
 
