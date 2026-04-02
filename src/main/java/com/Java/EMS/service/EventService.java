@@ -1,4 +1,4 @@
 package com.Java.EMS.service;
 
-public class AdminService {
+public class EventService {
 }

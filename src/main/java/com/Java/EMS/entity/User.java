@@ -139,12 +139,12 @@ public class User {
         this.profileImage = profileImage;
     }
 
-    enum Role {
+    public enum Role {
         ADMIN, ORGANIZER, STUDENT
     }
 
 
-    enum Status {
+    public enum Status {
         ACTIVE, PENDING, BLOCKED
     }
 
