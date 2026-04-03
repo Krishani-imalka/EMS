@@ -36,8 +36,8 @@ public class Event {
     @Column(name = "location", length = 200, nullable = false)
     private String location;
 
-    @ManyToOne
-    @JoinColumn(name = "venue_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "v_name", referencedColumnName = "v_name")
     private Venue venue;
 
     @Enumerated(EnumType.STRING)
@@ -55,7 +55,7 @@ public class Event {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private EventStatus status = EventStatus.PENDING;
+    private EventStatus status;
 
 
     @ManyToOne
@@ -75,6 +75,10 @@ public class Event {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+
+        if (this.status == null) {
+            this.status = EventStatus.PENDING;
+        }
     }
 
     @PreUpdate
@@ -99,7 +103,7 @@ public class Event {
         this.expectedAttendees = expectedAttendees;
         this.contactInfo = contactInfo;
         this.bannerImage = bannerImage;
-        this.status = status;
+        this.status = EventStatus.PENDING;
         this.admin = admin;
         this.adminRemarks = adminRemarks;
         this.createdAt = createdAt;
@@ -250,11 +254,11 @@ public class Event {
         this.updatedAt = updatedAt;
     }
 
-    enum EventCategory {
+    public enum EventCategory {
         ACADEMIC, CULTURAL, SPORTS, WORKSHOP, SEMINAR
     }
 
-    enum EventStatus {
+    public enum EventStatus {
         PENDING, APPROVED, REJECTED, CANCELLED
     }
 }

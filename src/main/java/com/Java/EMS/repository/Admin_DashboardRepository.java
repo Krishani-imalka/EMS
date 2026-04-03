@@ -7,6 +7,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, String>{
-    List<User> findTopByStatusOrderByUserIdDesc(User.Status status);
+public interface Admin_DashboardRepository extends JpaRepository<User, String> {
+
+//    long countByRole(User.Role role);
+//    List<User> findByStatus(User.Status status);
 }

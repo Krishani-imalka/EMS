@@ -13,5 +13,8 @@ public class HomeController {
     @Autowired
     private EventController eventController;
 
+    @Autowired
+    private Admin_DashboardController adminDashboardController;
+
 
 }
