@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<!--<html lang="en">-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <link rel="stylesheet" href="/CSS/Header.css"/>
+  <link rel="stylesheet" href="/CSS/user_management.css">
+
+</head>
+
+<body>
+
+
+  <!-- ── HEADER ── -->
+  <div th:replace="~{Fragments/Header :: header('User Management')}"></div>
+
+  <!-- ── MAIN ── -->
+  <main>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+
+
+      <div class="search-wrap">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8" />
+          <path d="M21 21l-4.35-4.35" />
+        </svg>
+        <input type="text" placeholder="Search users..." id="searchInput" />
+      </div>
+      <p>
+        <" ">
+
+      </p>
+      <select class=" role-filter" id="roleFilter">
+          <option value="">All Roles</option>
+          <option value="Student">Student</option>
+          <option value="Organizer">Organizer</option>
+          <option value="Admin">Admin</option>
+          </select>
+
+          <button class="btn-add" id="toggleFormBtn">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            Add User
+          </button>
+    </div>
+
+    <!-- Add User Panel-->
+    <div class="add-panel" id="addPanel">
+      <h2>Add New User</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="fullName">Full Name</label>
+          <input type="text" id="fullName" placeholder="Enter full name" />
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="Enter email" />
+        </div>
+        <div class="form-group" style="max-width:200px;">
+          <label for="roleSelect">Role</label>
+          <select id="roleSelect">
+            <option>Student</option>
+            <option>Organizer</option>
+            <option>Admin</option>
+          </select>
+        </div>
+        <button class="btn-create" id="createUserBtn">Create User</button>
+      </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+        <tr th:each="user, stat : ${users}">
+          <td class="td-num" th:text="${stat.index + 1}"></td>
+          <td class="td-name" th:text="${user.fullName}"></td>
+          <td class="td-email" th:text="${user.email}"></td>
+          <td class="td-role" th:text="${user.role}"></td>
+          <td>
+             <span th:classappend="${user.status.name() == 'ACTIVE' ? 'status-active' :
+                        (user.status.name() == 'PENDING' ? 'status-pending' :
+                        'status-blocked')}"
+                   class="status-badge"
+                   th:text="${user.status}">
+             </span>
+          </td>
+          <td>
+            <div class="actions">
+              <button class="btn-action btn-authorize">Authorize</button>
+              <button class="btn-action btn-block">Block</button>
+              <button class="btn-action btn-delete">Delete</button>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+
+      </table>
+    </div>
+
+  </main>
+
+</body>
+
+</html>
