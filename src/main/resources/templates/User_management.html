@@ -2,6 +2,7 @@
 <!--<html lang="en">-->
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
+  <link rel="stylesheet" href="/CSS/Header.css"/>
   <link rel="stylesheet" href="/CSS/user_management.css">
 
 </head>
@@ -10,7 +11,7 @@
 
 
   <!-- ── HEADER ── -->
-  <!-- <iframe src="Header.html" class="header-frame"></iframe> -->
+  <div th:replace="~{Fragments/Header :: header('User Management')}"></div>
 
   <!-- ── MAIN ── -->
   <main>

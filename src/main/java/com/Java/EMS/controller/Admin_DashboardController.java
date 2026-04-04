@@ -7,12 +7,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
+@RequestMapping("/admin")
 public class Admin_DashboardController {
 
     @Autowired
     private Admin_DashboardService adminDashboardService;
 
-    @GetMapping("/admindashboard")
+    @GetMapping("/dashboard")
     public String adminDashboard(Model model) {
 
         model.addAttribute("totalUsers",adminDashboardService.getTotalUsers());
