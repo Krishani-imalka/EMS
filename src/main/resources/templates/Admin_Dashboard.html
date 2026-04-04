@@ -2,12 +2,14 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
+  <link rel="stylesheet" href="/CSS/Header.css"/>
   <link rel="stylesheet" href="/CSS/Admin_dashboard.css">
-</head>
 
+</head>
 <body>
 
 <!-- HEADER -->
+<div th:replace="~{Fragments/Header :: header('Admin Dashboard')}"></div>
 
 <main class="content">
 

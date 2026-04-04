@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
+  <link rel="stylesheet" href="/CSS/Header.css"/>
   <link rel="stylesheet" href="/CSS/Event.css">
 
 </head>
@@ -8,7 +9,7 @@
 <body>
 
   <!-- ── HEADER ── -->
-
+  <div th:replace="~{Fragments/Header :: header('Event Management')}"></div>
 
   <!-- ── MAIN ── -->
   <main>

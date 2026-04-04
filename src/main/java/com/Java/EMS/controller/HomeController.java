@@ -16,5 +16,9 @@ public class HomeController {
     @Autowired
     private Admin_DashboardController adminDashboardController;
 
+    @GetMapping("/admin")
+    public String sidebar() {
+        return "/Fragments/Sidebar";
+    }
 
 }
