@@ -25,4 +25,9 @@ public class HomeController {
         return "/Fragments/Sidebar";
     }
 
+    @GetMapping("/student")
+    public String stusidebar() {
+        return "/Fragments/Stu_sidebar";
+    }
+
 }

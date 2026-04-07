@@ -52,7 +52,7 @@ public class Student_DashboardController {
         return "Student_Dashboard";
     }
 
-    @GetMapping("/events")
+    @GetMapping("/Filterevents")
     public String events(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String category,
