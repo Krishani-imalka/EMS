@@ -20,6 +20,10 @@ public class HomeController {
     @Autowired
     private Student_DashboardController studentDashboardController;
 
+    @Autowired
+    private Organizer_DashboardController organizerDashboardController;
+
+
     @GetMapping("/admin")
     public String sidebar() {
         return "/Fragments/Sidebar";
@@ -30,4 +34,8 @@ public class HomeController {
         return "/Fragments/Stu_sidebar";
     }
 
+    @GetMapping("/organizer")
+    public String orgsidebar() {
+        return "/Fragments/Org_sidebar";
+    }
 }

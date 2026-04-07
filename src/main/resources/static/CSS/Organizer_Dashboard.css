@@ -1,0 +1,37 @@
+body {
+    background: #f5f7fb;
+}
+
+.header-box {
+    background: #2f4e7c;
+    color: white;
+    padding: 30px;
+    border-radius: 15px;
+}
+
+.stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.status-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+.pending {
+    background: #ffeeba;
+}
+
+.approved {
+    background: #c3f0ca;
+}
+
+.rejected {
+    background: #f8caca;
+}
+
+_
