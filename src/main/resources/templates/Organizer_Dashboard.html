@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <link rel="stylesheet" href="/CSS/Header.css"/>
+    <link rel="stylesheet" href="/CSS/Organizer_Dashboard.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="p-4">
+  <div th:replace="~{Fragments/Header :: header('Organizer Dashboard')}"></div>
+
+    <div class="container">
+
+        <!-- Header -->
+        <div class="header-box mb-4">
+            <h3>Welcome back, Dr. Kamal!</h3>
+            <p>Manage your events and create new ones.</p>
+            <a th:href="@{/organizer/create-event}" class="btn btn-warning">+ Create New Event</a>
+        </div>
+
+        <!-- Stats -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stat-card">My Events <h4 th:text="${total}">0</h4></div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">Approved <h4 th:text="${approved}">0</h4></div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">Pending <h4 th:text="${pending}">0</h4></div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">Rejected <h4 th:text="${rejected}">0</h4></div>
+            </div>
+        </div>
+
+        <div class="card-header"><b>Recent Events</b></div></br>
+        <!-- Table -->
+        <div class="card">
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Event</th>
+                        <th>Date</th>
+                        <th>Location</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr th:each="event : ${events}">
+                        <td th:text="${event.eventName}"></td>
+                        <td th:text="${event.eventDate}"></td>
+                        <td th:text="${event.location}">Location</td>
+                    <td>
+  <span class="status-badge"
+        th:classappend="${event.status.name() == 'APPROVED'} ? ' approved' :
+                     (${event.status.name() == 'PENDING'} ? ' pending' : ' rejected')"
+        th:text="${#strings.capitalize(#strings.toLowerCase(event.status.name()))}">
+  </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</body>
+
+</html>

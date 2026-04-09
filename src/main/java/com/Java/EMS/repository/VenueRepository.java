@@ -7,6 +7,5 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface Admin_DashboardRepository extends JpaRepository<User, String> {
-
+public interface VenueRepository extends JpaRepository<User, String>{
 }

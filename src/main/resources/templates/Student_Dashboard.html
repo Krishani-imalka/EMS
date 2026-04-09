@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <link rel="stylesheet" href="/CSS/Student_Dashboard.css">
+  <link rel="stylesheet" href="/CSS/Header.css"/>
+</head>
+
+<body>
+
+<div th:replace="~{Fragments/Header :: header('Student Dashboard')}"></div>
+
+<div class="hero">
+  <h1>Upcoming Events at Faculty of Technology</h1>
+  <p>Discover workshops, seminars, and events happening at UOR.</p>
+  <div class="search-bar">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.35-4.35" />
+    </svg>
+    <form th:action="@{/student/dashboard}" method="get" style="display:contents">
+      <input type="text" name="search" placeholder="Search events…"
+             th:value="${search}" onchange="this.form.submit()">
+    </form>
+  </div>
+</div>
+
+<div class="home-body">
+
+  <!-- Featured Events (next 2 weeks) -->
+  <div>
+    <div class="section-title">Featured Events</div>
+    <div class="featured-grid" id="featuredGrid">
+      <div th:if="${#lists.isEmpty(featuredEvents)}" class="no-results">
+        No upcoming events in the next 2 weeks.
+      </div>
+      <div th:each="e : ${featuredEvents}" class="event-card">
+        <div class="card-banner">
+          <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <rect x="3" y="4" width="18" height="18" rx="2"/>
+            <path d="M16 2v4M8 2v4M3 10h18"/>
+          </svg>
+          <span th:text="${e.category}">Category</span>
+        </div>
+        <div class="card-body">
+            <span class="badge"
+                  th:classappend="'badge-' + ${#strings.toLowerCase(e.category)}"
+                  th:text="${e.category}">Category</span>
+          <div class="card-title" th:text="${e.eventName}">Event Name</div>
+          <div class="card-meta">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="3" y="4" width="18" height="18" rx="2"/>
+              <path d="M16 2v4M8 2v4M3 10h18"/>
+            </svg>
+            <span th:text="${#temporals.format(e.eventDate, 'MMM dd, yyyy')}">Date</span>
+            &bull;
+            <span th:text="${#temporals.format(e.startTime, 'hh:mm a')}">Time</span>
+          </div>
+          <div class="card-meta">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+            <span th:text="${e.location}">Location</span>
+          </div>
+          <button class="btn-view">View Details</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upcoming Schedule (after 2 weeks) -->
+  <div>
+    <div class="section-title">Upcoming Schedule</div>
+    <div class="schedule-list" id="scheduleList">
+      <div th:if="${#lists.isEmpty(scheduleEvents)}"
+           style="color:#6b7280;font-size:.85rem">
+        No upcoming events.
+      </div>
+      <div th:each="e : ${scheduleEvents}" class="schedule-item">
+        <div class="date-chip">
+          <span class="month" th:text="${#temporals.format(e.eventDate, 'MMM')}">Mon</span>
+          <span class="day"   th:text="${#temporals.format(e.eventDate, 'dd')}">01</span>
+        </div>
+        <div class="schedule-info">
+          <div class="s-title" th:text="${e.eventName}">Event Name</div>
+          <div class="s-loc"   th:text="'@ ' + ${e.location}">Location</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end home-body -->
+
+</body>
+
+</html>
