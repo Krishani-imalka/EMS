@@ -31,5 +31,9 @@ public class EventService {
         return eventRepository.findAll();
     }
 
+    public List<Event> getEventsByOrganizer(User organizer) {
+        return eventRepository.findByOrganizerOrderByCreatedAtDesc(organizer);
+    }
+
 
 }
