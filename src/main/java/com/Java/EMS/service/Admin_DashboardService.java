@@ -21,6 +21,6 @@ public interface Admin_DashboardService {
 
     void activeUser(String userId);
 
-    void approvedEvent(String eventId);
+     void approvedEvent(Long eventId);
 
 }
