@@ -3,20 +3,24 @@ package com.Java.EMS.repository;
 import com.Java.EMS.entity.Event;
 import com.Java.EMS.entity.User;
 import com.Java.EMS.entity.Venue;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
 @Repository
-public interface EventRepository extends JpaRepository<Event, String> {
+public interface EventRepository extends JpaRepository<Event, Long> {
 
     long countByStatus(Event.EventStatus status);
-    List<Event> findTopByStatusOrderByCreatedAtDesc(Event.EventStatus status);
+
+    List<Event> findByStatusOrderByCreatedAtDesc(Event.EventStatus status);
 
     List<Event> findByStatusOrderByEventDateAsc(Event.EventStatus status);
 
@@ -60,14 +64,72 @@ public interface EventRepository extends JpaRepository<Event, String> {
             "AND (:location IS NULL OR e.location LIKE CONCAT('%', :location, '%')) " +
             "ORDER BY e.eventDate ASC")
     List<Event> filterApprovedEvents(
-            @Param("search")   String search,
+            @Param("search") String search,
             @Param("category") Event.EventCategory category,
-            @Param("from")     LocalDate from,
-            @Param("to")       LocalDate to,
+            @Param("from") LocalDate from,
+            @Param("to") LocalDate to,
             @Param("location") String location);
 
     @Query("SELECT DISTINCT e.location FROM Event e " +
             "WHERE e.status = 'APPROVED' ORDER BY e.location ASC")
     List<String> findDistinctApprovedLocations();
 
+
+
+
+    // ── Organizer: My Events page
+    List<Event> findByOrganizerOrderByCreatedAtDesc(User organizer);
+
+    // ── Organizer: Dashboard top-N (uses Spring Pageable, not java.awt.print) ─
+    List<Event> findByOrganizerOrderByCreatedAtDesc(User organizer, Pageable pageable);
+
+    // ── Organizer: dashboard counts
+    long countByOrganizer(User organizer);
+    long countByOrganizerAndStatus(User organizer, Event.EventStatus status);
+
+
+    // ── Organizer: duplicate check (create)
+    boolean existsByOrganizerAndEventNameAndEventDate(
+            User organizer, String eventName, LocalDate eventDate);
+
+    // ── Organizer: duplicate check (edit — excludes self)
+    boolean existsByOrganizerAndEventNameAndEventDateAndEventIdNot(
+            User organizer, String eventName, LocalDate eventDate, Long eventId);
+
+
+    @Query("""
+        SELECT COUNT(e) > 0 FROM Event e
+        WHERE e.venue = :venue
+          AND e.eventDate = :eventDate
+          AND e.status NOT IN (
+              com.Java.EMS.entity.Event.EventStatus.CANCELLED,
+              com.Java.EMS.entity.Event.EventStatus.REJECTED)
+          AND e.startTime < :endTime
+          AND e.endTime   > :startTime
+    """)
+    boolean existsVenueTimeClash(
+            @Param("venue")     Venue venue,
+            @Param("eventDate") LocalDate eventDate,
+            @Param("startTime") LocalTime startTime,
+            @Param("endTime")   LocalTime endTime);
+
+
+    @Query("""
+        SELECT COUNT(e) > 0 FROM Event e
+        WHERE e.venue = :venue
+          AND e.eventDate = :eventDate
+          AND e.eventId  <> :eventId
+          AND e.status NOT IN (
+              com.Java.EMS.entity.Event.EventStatus.CANCELLED,
+              com.Java.EMS.entity.Event.EventStatus.REJECTED)
+          AND e.startTime < :endTime
+          AND e.endTime   > :startTime
+    """)
+    boolean existsVenueTimeClashExcluding(
+            @Param("venue")     Venue venue,
+            @Param("eventDate") LocalDate eventDate,
+            @Param("startTime") LocalTime startTime,
+            @Param("endTime")   LocalTime endTime,
+            @Param("eventId")   Long eventId);
 }
+

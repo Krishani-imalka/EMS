@@ -34,7 +34,7 @@ public class Admin_DashboardController {
     }
 
     @PostMapping("/events/{eventId}/approved")
-    public String approvedEvent(@PathVariable String eventId) {
+    public String approvedEvent(@PathVariable long eventId) {
         adminDashboardService.approvedEvent(eventId);
         return "Admin_Dashboard";
     }

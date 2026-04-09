@@ -13,16 +13,16 @@ import java.util.List;
 
 @Service
 @Transactional
-class Admin_DashboardServiceImpl implements Admin_DashboardService {
+public class Admin_DashboardServiceImpl implements Admin_DashboardService {
 
-    @Autowired
-    private Admin_DashboardRepository adminDashboardRepository;
+    private final EventRepository eventRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private EventRepository eventRepository;
-
-    @Autowired
-    private UserRepository userRepository;
+    public Admin_DashboardServiceImpl(EventRepository eventRepository,
+                                      UserRepository userRepository) {
+        this.eventRepository = eventRepository;
+        this.userRepository  = userRepository;
+    }
 
     @Override
     public long getTotalUsers() {
@@ -46,12 +46,13 @@ class Admin_DashboardServiceImpl implements Admin_DashboardService {
 
     @Override
     public List<Event> getPendingEvents() {
-        return eventRepository.findTopByStatusOrderByCreatedAtDesc(Event.EventStatus.PENDING);
+        return eventRepository.findByStatusOrderByCreatedAtDesc(Event.EventStatus.PENDING);
     }
 
     @Override
     public List<User> getPendingUsers() {
-        return userRepository.findTopByStatusOrderByUserIdDesc(User.Status.PENDING);
+        return userRepository.findByStatusOrderByUserIdDesc(User.Status.PENDING);
+
     }
 
     @Override
@@ -62,9 +63,8 @@ class Admin_DashboardServiceImpl implements Admin_DashboardService {
         userRepository.save(user);
     }
 
-
     @Override
-    public void approvedEvent(String eventId) {
+    public void approvedEvent(Long eventId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new RuntimeException("Event not found: " + eventId));
         event.setStatus(Event.EventStatus.APPROVED);

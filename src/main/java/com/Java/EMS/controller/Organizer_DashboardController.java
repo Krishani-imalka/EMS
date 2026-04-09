@@ -1,11 +1,14 @@
 package com.Java.EMS.controller;
 
+import com.Java.EMS.entity.Event;
+import com.Java.EMS.entity.User;
 import com.Java.EMS.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 
 
 @Controller
@@ -16,9 +19,27 @@ public class Organizer_DashboardController {
 
 
     @GetMapping("/dashboard")
-    public String dashboard(
-            @RequestParam(required = false) String search,
-            Model model) {
+    public String dashboard(Model model) {
+        List<Event> events = eventService.getAllEvents();
+
+        long total = events.size();
+        long approved = events.stream()
+                .filter(e -> e.getStatus() == Event.EventStatus.APPROVED)
+                .count();
+
+        long pending = events.stream()
+                .filter(e -> e.getStatus() == Event.EventStatus.PENDING)
+                .count();
+
+        long rejected = events.stream()
+                .filter(e -> e.getStatus() == Event.EventStatus.REJECTED)
+                .count();
+
+        model.addAttribute("events", events);
+        model.addAttribute("total", total);
+        model.addAttribute("approved", approved);
+        model.addAttribute("pending", pending);
+        model.addAttribute("rejected", rejected);
 
 
 
@@ -26,25 +47,13 @@ public class Organizer_DashboardController {
     }
 
 
-    @PostMapping("/createEvent")
-    public String Event(
-            @RequestParam(required = false) String search,
-            Model model) {
 
-
-
+    @GetMapping("/create-event")
+    public String createEventPage() {
         return "Organizer_NewEventForm";
     }
 
-    @GetMapping("/ Allevents")
-    public String AllEvent(
-            @RequestParam(required = false) String search,
-            Model model) {
 
-
-
-        return "Organizer_AllEvent";
-    }
 
 
 }

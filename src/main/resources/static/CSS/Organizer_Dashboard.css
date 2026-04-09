@@ -1,9 +1,10 @@
 body {
     background: #f5f7fb;
+    font-family: 'Segoe UI', sans-serif;
 }
 
 .header-box {
-    background: #2f4e7c;
+    background: linear-gradient(135deg, #2f4e7c, #3f6ba5);
     color: white;
     padding: 30px;
     border-radius: 15px;
@@ -13,25 +14,68 @@ body {
     background: white;
     padding: 20px;
     border-radius: 12px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    /*box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);*/
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    font-weight: 500;
+}
+
+.stat-card h4 {
+    font-weight: bold;
+    margin: 0;
+}
+
+/* Table Card */
+.card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.card-header {
+    background: transparent;
+    font-weight: 600;
+    padding: 15px 20px;
+
+}
+
+/* Table */
+.table {
+    margin: 0;
+}
+
+.table th {
+    font-size: 12px;
+    color: #6c757d;
+    letter-spacing: 0.5px;
+}
+
+.table td {
+    vertical-align: middle;
 }
 
 .status-badge {
     padding: 5px 12px;
     border-radius: 20px;
     font-size: 12px;
+    font-weight: 500;
 }
 
 .pending {
     background: #ffeeba;
-}
+    color: #856404;}
 
 .approved {
     background: #c3f0ca;
+    color: #155724;
 }
 
 .rejected {
     background: #f8caca;
+    color: #721c24;
 }
 
 _
