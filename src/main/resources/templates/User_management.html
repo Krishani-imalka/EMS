@@ -2,6 +2,7 @@
 <!--<html lang="en">-->
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="/CSS/Header.css"/>
   <link rel="stylesheet" href="/CSS/user_management.css">
 
@@ -16,10 +17,12 @@
   <!-- ── MAIN ── -->
   <main>
 
+    <!-- Alerts -->
+    <div th:if="${successMessage}" class="alert-success-bar" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}"   class="alert-error-bar"   th:text="${errorMessage}"></div>
+
     <!-- Toolbar -->
     <div class="toolbar">
-
-
       <div class="search-wrap">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <circle cx="11" cy="11" r="8" />
@@ -47,32 +50,49 @@
     </div>
 
     <!-- Add User Panel-->
-    <div class="add-panel" id="addPanel">
+    <div class="add-panel" id="addPanel" style="display:none;">
       <h2>Add New User</h2>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="fullName">Full Name</label>
-          <input type="text" id="fullName" placeholder="Enter full name" />
+
+      <form th:action="@{/admin/users/create}" method="post">
+        <div class="form-row">
+
+          <div class="form-group">
+            <label>Full Name <span class="required">*</span></label>
+            <input type="text" name="fullName" placeholder="Enter full name"/>
+          </div>
+
+          <div class="form-group">
+            <label>Email <span class="required">*</span></label>
+            <input type="email" name="email" placeholder="Enter email"/>
+          </div>
+
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="text" name="phone" placeholder="Enter phone"/>
+          </div>
+
+          <div class="form-group">
+            <label>Department</label>
+            <input type="text" name="department" placeholder="Enter department"/>
+          </div>
+
+          <div class="form-group" style="max-width:160px;">
+            <label>Role <span class="required">*</span></label>
+            <select name="role">
+              <option value="STUDENT">Student</option>
+              <option value="ORGANIZER">Organizer</option>
+              <option value="ADMIN">Admin</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn-create">Create User</button>
         </div>
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" placeholder="Enter email" />
-        </div>
-        <div class="form-group" style="max-width:200px;">
-          <label for="roleSelect">Role</label>
-          <select id="roleSelect">
-            <option>Student</option>
-            <option>Organizer</option>
-            <option>Admin</option>
-          </select>
-        </div>
-        <button class="btn-create" id="createUserBtn">Create User</button>
-      </div>
+      </form>
     </div>
 
     <!-- Users Table -->
     <div class="table-card">
-      <table>
+      <table id="userTable">
         <thead>
           <tr>
             <th>#</th>
@@ -85,7 +105,11 @@
         </thead>
 
         <tbody>
-        <tr th:each="user, stat : ${users}">
+        <tr th:each="user, stat : ${users}"
+            th:data-name="${user.fullName}"
+            th:data-email="${user.email}"
+            th:data-role="${user.role}">
+
           <td class="td-num" th:text="${stat.index + 1}"></td>
           <td class="td-name" th:text="${user.fullName}"></td>
           <td class="td-email" th:text="${user.email}"></td>
@@ -100,9 +124,31 @@
           </td>
           <td>
             <div class="actions">
-              <button class="btn-action btn-authorize">Authorize</button>
-              <button class="btn-action btn-block">Block</button>
-              <button class="btn-action btn-delete">Delete</button>
+              <!-- Authorize -->
+              <form th:action="@{/admin/users/authorize/{id}(id=${user.userId})}"
+                    method="post" style="display:inline;">
+                <button type="submit" class="btn-action btn-authorize">
+                  Authorize
+                </button>
+              </form>
+
+              <!-- Block -->
+              <form th:action="@{/admin/users/block/{id}(id=${user.userId})}"
+                    method="post" style="display:inline;">
+                <button type="submit" class="btn-action btn-block">
+                  Block
+                </button>
+              </form>
+
+              <!-- Delete -->
+              <form th:action="@{/admin/users/delete/{id}(id=${user.userId})}"
+                    method="post" style="display:inline;"
+                    onsubmit="return confirm('Are you sure you want to delete this user?');">
+                <button type="submit" class="btn-action btn-delete">
+                  Delete
+                </button>
+              </form>
+
             </div>
           </td>
         </tr>
@@ -113,6 +159,42 @@
 
   </main>
 
+  <script>
+    // Toggle Add User panel
+    const toggleBtn = document.getElementById('toggleFormBtn');
+    const addPanel  = document.getElementById('addPanel');
+
+    toggleBtn.addEventListener('click', () => {
+      const isHidden = addPanel.style.display === 'none' || addPanel.style.display === '';
+      addPanel.style.display = isHidden ? 'block' : 'none';
+    });
+
+    // Search + Role filter
+    const searchInput = document.getElementById('searchInput');
+    const roleFilter  = document.getElementById('roleFilter');
+    const tbody       = document.querySelector('#userTable tbody');
+
+    function filterTable() {
+      const search = searchInput.value.toLowerCase().trim();
+      const role   = roleFilter.value.toUpperCase().trim();
+
+      const rows = tbody.querySelectorAll('tr');
+
+      rows.forEach(row => {
+        const name  = (row.getAttribute('data-name')  || '').toLowerCase();
+        const email = (row.getAttribute('data-email') || '').toLowerCase();
+        const rRole = (row.getAttribute('data-role')  || '').toUpperCase();
+
+        const matchSearch = search === '' || name.includes(search) || email.includes(search);
+        const matchRole   = role === '' || rRole === role;
+
+        row.style.display = matchSearch && matchRole ? '' : 'none';
+      });
+    }
+
+    searchInput.addEventListener('input',  filterTable);
+    roleFilter.addEventListener('change', filterTable);
+  </script>
 </body>
 
 </html>
