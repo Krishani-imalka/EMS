@@ -24,9 +24,9 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     List<Event> findByStatusOrderByEventDateAsc(Event.EventStatus status);
 
-    List<Event> findByStatusAndCategoryOrderByEventDateAsc(
-            Event.EventStatus status,
-            Event.EventCategory category);
+    List<Event> findByStatusAndCategoryOrderByEventDateAsc(Event.EventStatus status, Event.EventCategory category);
+
+    List<Event> findByOrganizerOrderByCreatedAtDesc(User organizer);
 
 
     @Query("SELECT e FROM Event e WHERE e.status = 'APPROVED' AND (" +
@@ -76,9 +76,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
 
 
-
-    // ── Organizer: My Events page
-    List<Event> findByOrganizerOrderByCreatedAtDesc(User organizer);
 
     // ── Organizer: Dashboard top-N (uses Spring Pageable, not java.awt.print) ─
     List<Event> findByOrganizerOrderByCreatedAtDesc(User organizer, Pageable pageable);
