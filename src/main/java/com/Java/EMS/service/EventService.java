@@ -41,11 +41,43 @@ public class EventService {
         return eventRepository.findAll();
     }
 
+    public Event getEventById(Long id) {
+        return eventRepository.findById(id).orElse(null);
+    }
+
     public List<Event> getEventsByOrganizer(User organizer) {
         return eventRepository.findByOrganizerOrderByCreatedAtDesc(organizer);
     }
     public List<Venue> getAllVenues() {
         return venueRepository.findAll();
+    }
+
+
+    public String updateEventStatus(Long eventId, Event.EventStatus newStatus, String adminRemarks) {
+        Event event = eventRepository.findById(eventId).orElse(null);
+        if (event == null) {
+            return "Event not found.";
+        }
+        event.setStatus(newStatus);
+        if (adminRemarks != null && !adminRemarks.isBlank()) {
+            event.setAdminRemarks(adminRemarks);
+        }
+        eventRepository.save(event);
+        return null; // null = success
+    }
+
+    // ── DELETE ────────────────────────────────────────────────────────────────
+
+    /**
+     * Deletes an event by ID.
+     * Returns null on success, or an error message string on failure.
+     */
+    public String deleteEvent(Long eventId) {
+        if (!eventRepository.existsById(eventId)) {
+            return "Event not found.";
+        }
+        eventRepository.deleteById(eventId);
+        return null; // null = success
     }
 
     /**
@@ -94,18 +126,23 @@ public class EventService {
         }
 
         // 6. Handle banner image upload
-        String savedImagePath = null;
-        if (bannerImage != null && !bannerImage.isEmpty()) {
-            try {
-                Path uploadPath = Paths.get(uploadDir);
-                Files.createDirectories(uploadPath);
-                String fileName = UUID.randomUUID() + "_" + bannerImage.getOriginalFilename();
-                Path filePath = uploadPath.resolve(fileName);
-                Files.copy(bannerImage.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-                savedImagePath = fileName;
-            } catch (IOException e) {
-                return "Failed to upload banner image: " + e.getMessage();
-            }
+//        String savedImagePath = null;
+//        if (bannerImage != null && !bannerImage.isEmpty()) {
+//            try {
+//                Path uploadPath = Paths.get(uploadDir);
+//                Files.createDirectories(uploadPath);
+//                String fileName = UUID.randomUUID() + "_" + bannerImage.getOriginalFilename();
+//                Path filePath = uploadPath.resolve(fileName);
+//                Files.copy(bannerImage.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+//                savedImagePath = fileName;
+//            } catch (IOException e) {
+//                return "Failed to upload banner image: " + e.getMessage();
+//            }
+//        }
+
+        String savedImagePath = saveBannerImage(bannerImage);
+        if (savedImagePath != null && savedImagePath.startsWith("ERROR:")) {
+            return savedImagePath.substring(6);
         }
 
         // 7. Build and save Event
@@ -126,6 +163,95 @@ public class EventService {
 
         eventRepository.save(event);
         return null; // null = success
+    }
+
+
+    // ── UPDATE (EDIT) ─────────────────────────────────────────────────────────
+
+    /**
+     * Updates an existing event.
+     * Returns null on success, or an error message string on failure.
+     */
+    public String updateEvent(
+            Long eventId,
+            String eventName,
+            String description,
+            LocalDate eventDate,
+            LocalTime startTime,
+            LocalTime endTime,
+            String location,
+            String venueName,
+            Event.EventCategory category,
+            Integer expectedAttendees,
+            String contactInfo,
+            MultipartFile bannerImage
+    ) {
+        // 1. Load existing event
+        Event event = eventRepository.findById(eventId).orElse(null);
+        if (event == null) {
+            return "Event not found.";
+        }
+
+        // 2. Validate end time
+        if (!endTime.isAfter(startTime)) {
+            return "End time must be after start time.";
+        }
+
+        // 3. Duplicate check (excluding self)
+        if (eventRepository.existsByOrganizerAndEventNameAndEventDateAndEventIdNot(
+                event.getOrganizer(), eventName, eventDate, eventId)) {
+            return "You already have another event with this name on that date.";
+        }
+
+        // 4. Resolve venue (optional)
+        Venue venue = null;
+        if (venueName != null && !venueName.isBlank()) {
+            venue = venueRepository.findById(venueName).orElse(null);
+            if (venue != null && eventRepository.existsVenueTimeClashExcluding(
+                    venue, eventDate, startTime, endTime, eventId)) {
+                return "This venue is already booked for an overlapping time on that date.";
+            }
+        }
+
+        // 5. Handle banner image (only replace if a new file was uploaded)
+        if (bannerImage != null && !bannerImage.isEmpty()) {
+            String savedImagePath = saveBannerImage(bannerImage);
+            if (savedImagePath != null && savedImagePath.startsWith("ERROR:")) {
+                return savedImagePath.substring(6);
+            }
+            event.setBannerImage(savedImagePath);
+        }
+
+        // 6. Apply changes
+        event.setEventName(eventName);
+        event.setDescription(description);
+        event.setEventDate(eventDate);
+        event.setStartTime(startTime);
+        event.setEndTime(endTime);
+        event.setLocation(location);
+        event.setVenue(venue);
+        event.setCategory(category);
+        event.setExpectedAttendees(expectedAttendees);
+        event.setContactInfo(contactInfo);
+
+        eventRepository.save(event);
+        return null;
+    }
+
+    // ── HELPER ────────────────────────────────────────────────────────────────
+
+    private String saveBannerImage(MultipartFile bannerImage) {
+        if (bannerImage == null || bannerImage.isEmpty()) return null;
+        try {
+            Path uploadPath = Paths.get(uploadDir);
+            Files.createDirectories(uploadPath);
+            String fileName = UUID.randomUUID() + "_" + bannerImage.getOriginalFilename();
+            Path filePath = uploadPath.resolve(fileName);
+            Files.copy(bannerImage.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            return fileName;
+        } catch (IOException e) {
+            return "ERROR: Failed to upload banner image: " + e.getMessage();
+        }
     }
 
 }

@@ -1,9 +1,8 @@
 package com.Java.EMS.entity;
 
-import ch.qos.logback.core.status.Status;
+
 import jakarta.persistence.*;
 
-import javax.management.relation.Role;
 
 @Entity
 @Table(name = "users")
@@ -27,11 +26,11 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
-    private Role role;
+    private User.Role role;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private Status status = Status.PENDING;
+    private User.Status status = User.Status.PENDING;
 
 
     @Column(name = "phone", length = 20)
