@@ -13,16 +13,7 @@
 <div class="hero">
   <h1>Upcoming Events at Faculty of Technology</h1>
   <p>Discover workshops, seminars, and events happening at UOR.</p>
-  <div class="search-bar">
-    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-      <circle cx="11" cy="11" r="8" />
-      <path d="m21 21-4.35-4.35" />
-    </svg>
-    <form th:action="@{/student/dashboard}" method="get" style="display:contents">
-      <input type="text" name="search" placeholder="Search events…"
-             th:value="${search}" onchange="this.form.submit()">
-    </form>
-  </div>
+
 </div>
 
 <div class="home-body">

@@ -33,13 +33,22 @@ public class UserService {
         }
 
         // Generate unique userId
-        String userId;
-        int attempts = 0;
-        do {
-            userId = "U" + String.format("%06d", (int)(Math.random() * 900000) + 100000);
-            attempts++;
-            if (attempts > 20) return "Could not generate unique user ID. Try again.";
-        } while (userRepository.existsById(userId));
+        String lastId = userRepository.findTopByOrderByUserIdDesc()
+                .map(User::getUserId)
+                .orElse(null);
+
+        int nextNumber = 1;
+
+        if (lastId != null) {
+            try {
+                nextNumber = Integer.parseInt(lastId.substring(1)) + 1;
+            } catch (Exception e) {
+                return "Invalid existing User ID format.";
+            }
+        }
+
+        String userId = "U" + String.format("%03d", nextNumber);
+
 
         // Generate unique username from fullName
         String baseUsername = fullName.toLowerCase()
