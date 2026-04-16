@@ -15,4 +15,5 @@ public interface UserRepository extends JpaRepository<User, String>{
     List<User> findByStatusOrderByUserIdDesc(User.Status status);
 
     User findByEmail(String email);
+    Optional<User> findTopByOrderByUserIdDesc();
 }
