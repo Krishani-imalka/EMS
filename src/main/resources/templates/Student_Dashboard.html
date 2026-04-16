@@ -54,8 +54,32 @@
             </svg>
             <span th:text="${e.location}">Location</span>
           </div>
-          <button class="btn-view">View Details</button>
+          <button class="btn-view"
+                  th:attr="onclick=|showDetails(
+            '${e.eventName}',
+            '${#temporals.format(e.eventDate, 'MMM dd, yyyy')}',
+            '${#temporals.format(e.startTime, 'hh:mm a')} - ${#temporals.format(e.endTime, 'hh:mm a')}',
+            '${e.location}',
+            '${e.category}',
+            '${e.description}'
+        )|">
+            View Details
+          </button>
         </div>
+      </div>
+
+      <!-- Event Details Popup -->
+      <div id="eventDetailsBox" class="event-details-box" style="display:none;">
+        <h2 id="d_name"></h2><br>
+        <p><strong>Date:</strong> <span id="d_date"></span></p>
+        <p><strong>Time:</strong> <span id="d_time"></span></p>
+        <p><strong>Location:</strong> <span id="d_location"></span></p>
+        <p><strong>Category:</strong> <span id="d_category"></span></p>
+
+        <p><strong>Description:</strong></p>
+        <p id="d_description"></p></br>
+
+        <button onclick="closeDetails()">Close</button>
       </div>
     </div>
   </div>
@@ -84,5 +108,21 @@
 </div><!-- end home-body -->
 
 </body>
+<script>
+  function showDetails(name, date, time, location, category, description) {
 
+    document.getElementById("d_name").innerText = name;
+    document.getElementById("d_date").innerText = date;
+    document.getElementById("d_time").innerText = time;
+    document.getElementById("d_location").innerText = location;
+    document.getElementById("d_category").innerText = category;
+    document.getElementById("d_description").innerText = description;
+
+    document.getElementById("eventDetailsBox").style.display = "block";
+  }
+
+  function closeDetails() {
+    document.getElementById("eventDetailsBox").style.display = "none";
+  }
+</script>
 </html>

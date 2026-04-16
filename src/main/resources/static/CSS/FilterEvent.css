@@ -431,3 +431,87 @@ nav a.active {
 .btn-clear:hover {
   opacity: 0.88;
 }
+
+/* ── Modal Overlay ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-box {
+  background: #fff;
+  border-radius: 14px;
+  border: 0.5px solid rgba(0,0,0,0.1);
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 480px;
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: #888;
+  line-height: 1;
+}
+.modal-close:hover { color: #333; }
+
+.modal-badge-row { margin-bottom: 0.75rem; }
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 1rem;
+  color: #1a1a1a;
+  padding-right: 1.5rem;
+}
+
+.modal-fields { display: flex; flex-direction: column; gap: 10px; }
+
+.modal-row {
+  display: flex;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.modal-label {
+  color: #888;
+  min-width: 90px;
+  flex-shrink: 0;
+}
+
+.modal-value {
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+.modal-divider {
+  border-top: 0.5px solid rgba(0,0,0,0.1);
+  margin: 4px 0;
+}
+
+.modal-section-label {
+  font-size: 13px;
+  color: #888;
+  margin: 0 0 4px;
+}
+
+.modal-description {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.6;
+  margin: 0 0 4px;
+}
