@@ -19,15 +19,16 @@ import java.util.List;
 public interface EventRepository extends JpaRepository<Event, Long> {
 
     long countByStatus(Event.EventStatus status);
+    long countByOrganizer(User organizer);
+    long countByOrganizerAndStatus(User organizer, Event.EventStatus status);
+
 
     List<Event> findByStatusOrderByCreatedAtDesc(Event.EventStatus status);
-
     List<Event> findByStatusOrderByEventDateAsc(Event.EventStatus status);
-
-    List<Event> findByStatusAndCategoryOrderByEventDateAsc(
-            Event.EventStatus status,
-            Event.EventCategory category);
-
+    List<Event> findByStatusAndCategoryOrderByEventDateAsc(Event.EventStatus status, Event.EventCategory category);
+    List<Event> findByOrganizerOrderByCreatedAtDesc(User organizer);
+    List<Event> findByOrganizerOrderByCreatedAtDesc(User organizer, Pageable pageable);
+    List<Event> findByStatus(Event.EventStatus status);
 
     @Query("SELECT e FROM Event e WHERE e.status = 'APPROVED' AND (" +
             "LOWER(e.eventName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
@@ -73,19 +74,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Query("SELECT DISTINCT e.location FROM Event e " +
             "WHERE e.status = 'APPROVED' ORDER BY e.location ASC")
     List<String> findDistinctApprovedLocations();
-
-
-
-
-    // ── Organizer: My Events page
-    List<Event> findByOrganizerOrderByCreatedAtDesc(User organizer);
-
-    // ── Organizer: Dashboard top-N (uses Spring Pageable, not java.awt.print) ─
-    List<Event> findByOrganizerOrderByCreatedAtDesc(User organizer, Pageable pageable);
-
-    // ── Organizer: dashboard counts
-    long countByOrganizer(User organizer);
-    long countByOrganizerAndStatus(User organizer, Event.EventStatus status);
 
 
     // ── Organizer: duplicate check (create)

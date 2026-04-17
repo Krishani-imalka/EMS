@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <link rel="stylesheet" href="/CSS/Event_Register.css"/>
+  <link rel="stylesheet" href="/CSS/Header.css"/>
+</head>
+
+<body>
+
+<div th:replace="~{Fragments/Header :: header('Event Register')}"></div>
+
+<div class="main">
+  <div class="content">
+    <div class="form-card">
+
+      <!-- Error Banner -->
+      <div class="banner banner-error" id="errorBanner">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span id="errorMsg"></span>
+      </div>
+
+      <!-- Success Banner -->
+      <div class="banner banner-success" id="successBanner">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="9 12 11 14 15 10"/>
+        </svg>
+        <span id="successMsg"></span>
+      </div>
+
+      <!-- Select Event -->
+      <div class="form-row">
+        <label class="form-label" for="eventSelect">
+          Select Event <span class="req">*</span>
+        </label>
+        <select id="eventSelect">
+          <option value="">— Choose an event —</option>
+          <option th:each="event : ${events}"
+                  th:value="${event.eventId}"
+                  th:text="${event.eventName + ' — ' + event.eventDate}">
+          </option>
+        </select>
+      </div>
+
+      <hr class="divider"/>
+
+      <!-- Pre-filled read-only fields from logged-in user -->
+      <div class="grid-2">
+        <div class="form-row">
+          <label class="form-label">Full Name</label>
+          <!--
+            IMPORTANT: Replace 'name' below with the exact field name
+            in your User entity e.g. fullName, userName, etc.
+          -->
+          <input type="text"
+                 th:value="${loggedInUser != null ? loggedInUser.fullname : ''}"
+                 readonly
+                 style="background:#f9fafb; color:#6b7280; cursor:not-allowed;"/>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Email Address</label>
+          <input type="email"
+                 th:value="${loggedInUser != null ? loggedInUser.email : ''}"
+                 readonly
+                 style="background:#f9fafb; color:#6b7280; cursor:not-allowed;"/>
+        </div>
+      </div>
+
+      <!-- Department & Year -->
+      <div class="grid-2">
+        <div class="form-row">
+          <label class="form-label" for="department">
+            Department <span class="req">*</span>
+          </label>
+          <select id="department">
+            <option value="">— Select department —</option>
+            <option th:value="'Computer Science'"
+                    th:selected="${loggedInUser != null and loggedInUser.department == 'Computer Science'}">Computer Science</option>
+            <option th:value="'Information Technology'"
+                    th:selected="${loggedInUser != null and loggedInUser.department == 'Information Technology'}">Information Technology</option>
+            <option th:value="'Software Engineering'"
+                    th:selected="${loggedInUser != null and loggedInUser.department == 'Software Engineering'}">Software Engineering</option>
+            <option th:value="'Electrical Engineering'"
+                    th:selected="${loggedInUser != null and loggedInUser.department == 'Electrical Engineering'}">Electrical Engineering</option>
+            <option th:value="'Civil Engineering'"
+                    th:selected="${loggedInUser != null and loggedInUser.department == 'Civil Engineering'}">Civil Engineering</option>
+            <option th:value="'Other'"
+                    th:selected="${loggedInUser != null and loggedInUser.department == 'Other'}">Other</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label class="form-label" for="year">
+            Year of Study <span class="req">*</span>
+          </label>
+          <select id="year">
+            <option value="">— Select year —</option>
+            <option>Year 1</option>
+            <option>Year 2</option>
+            <option>Year 3</option>
+            <option>Year 4</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Special Requirements -->
+      <div class="form-row">
+        <label class="form-label" for="notes">
+          Special Requirements <span class="opt">(optional)</span>
+        </label>
+        <textarea id="notes"
+                  placeholder="Any dietary, accessibility, or other requirements..."></textarea>
+      </div>
+
+      <!-- Buttons -->
+      <div class="btn-row">
+        <button class="btn-primary" onclick="submitForm()">Register for Event</button>
+        <button class="btn-outline" onclick="resetForm()">Clear Form</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  function submitForm() {
+    const eventId = document.getElementById('eventSelect').value;
+    const dept    = document.getElementById('department').value;
+    const year    = document.getElementById('year').value;
+
+    if (!eventId) return showBanner('error', 'Please select an event.');
+    if (!dept)    return showBanner('error', 'Please select your department.');
+    if (!year)    return showBanner('error', 'Please select your year of study.');
+
+    fetch('/student/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ eventId, department: dept, year  }).toString()
+    })
+            .then(r => r.json())
+            .then(data => {
+              if (data.success) { showBanner('success', data.message); resetForm(); }
+              else              { showBanner('error', data.message); }
+            })
+            .catch(() => showBanner('error', 'Network error. Please try again.'));
+  }
+
+  function showBanner(type, msg) {
+    document.getElementById('errorBanner').classList.remove('visible');
+    document.getElementById('successBanner').classList.remove('visible');
+    if (type === 'error') {
+      document.getElementById('errorMsg').textContent = msg;
+      document.getElementById('errorBanner').classList.add('visible');
+    } else {
+      document.getElementById('successMsg').textContent = msg;
+      document.getElementById('successBanner').classList.add('visible');
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function resetForm() {
+    document.getElementById('eventSelect').value = '';
+    document.getElementById('department').value  = '';
+    document.getElementById('year').value        = '';
+    document.getElementById('notes').value       = '';
+    document.getElementById('errorBanner').classList.remove('visible');
+    document.getElementById('successBanner').classList.remove('visible');
+  }
+</script>
+
+</body>
+</html>

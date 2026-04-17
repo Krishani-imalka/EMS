@@ -1,0 +1,15 @@
+package com.Java.EMS.repository;
+
+import com.Java.EMS.entity.Event;
+import com.Java.EMS.entity.Event_Registation;
+import com.Java.EMS.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+@Repository
+public interface Event_RegisterRepository extends JpaRepository <Event_Registation , Long>{
+    boolean existsByEventAndStudent(Event event, User student);
+
+}

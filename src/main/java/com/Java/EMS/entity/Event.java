@@ -14,7 +14,7 @@ public class Event {
     @Column(name = "event_id", nullable = false)
     private Long eventId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "organizer_id", nullable = false)
     private User organizer;
 
@@ -36,7 +36,7 @@ public class Event {
     @Column(name = "location", length = 200, nullable = false)
     private String location;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "v_name", referencedColumnName = "v_name")
     private Venue venue;
 
@@ -44,10 +44,10 @@ public class Event {
     @Column(name = "category", nullable = false)
     private EventCategory category;
 
-    @Column(name = "expected_attendees", nullable = false)
+    @Column(name = "expected_attendees")
     private Integer expectedAttendees;
 
-    @Column(name = "contact_info", length = 200, nullable = false)
+    @Column(name = "contact_info", length = 200)
     private String contactInfo;
 
     @Column(name = "banner_image", length = 255)
@@ -86,8 +86,7 @@ public class Event {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public Event() {
-    }
+    public Event() {}
 
     public Event(Long eventId, User organizer, String eventName, String description, LocalDate eventDate, LocalTime startTime, LocalTime endTime, String location, Venue venue, EventCategory category, Integer expectedAttendees, String contactInfo, String bannerImage, EventStatus status, User admin, String adminRemarks, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.eventId = eventId;
