@@ -1,0 +1,64 @@
+package com.Java.EMS.controller;
+
+import com.Java.EMS.entity.Event;
+import com.Java.EMS.entity.Event_Registation;
+import com.Java.EMS.entity.User;
+import com.Java.EMS.service.Event_RegisterService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import jakarta.servlet.http.HttpSession;
+import java.util.List;
+import java.util.Map;
+
+@Controller
+@RequestMapping("/student")
+public class Event_RegisterController {
+    private final Event_RegisterService registrationService;
+
+    public Event_RegisterController(Event_RegisterService registrationService) {
+        this.registrationService = registrationService;
+    }
+
+    // Load registration page with approved events in dropdown
+    @GetMapping("/register-page")
+    public String showRegistrationPage(Model model, HttpSession session) {
+        List<Event> events = registrationService.getApprovedEvents();
+        model.addAttribute("events", events);
+
+        // Get logged user from session
+        String username = (String) session.getAttribute("username");
+
+        if (username != null) {
+            User loggedInUser = registrationService.getLoggedInUser(username);
+            model.addAttribute("loggedInUser", loggedInUser);
+        }
+        return "Event_Register";
+    }
+
+    // Handle registration form submission via AJAX
+    @PostMapping("/register")
+    @ResponseBody
+    public ResponseEntity<?> registerForEvent(
+            @RequestParam Long eventId,
+            @RequestParam String department,
+            @RequestParam String year,
+            HttpSession session) {
+        try {
+            String username = (String) session.getAttribute("username");
+            Event_Registation saved = registrationService.registerStudentForEvent(eventId, username);
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "registrationId", saved.getRegistrationId(),
+                    "message", "You have successfully registered for the event!"
+            ));
+        } catch (IllegalArgumentException | IllegalStateException ex) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", ex.getMessage()
+            ));
+        }
+    }
+}
