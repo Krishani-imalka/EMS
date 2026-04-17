@@ -43,6 +43,8 @@ public class Event_RegisterController {
     @ResponseBody
     public ResponseEntity<?> registerForEvent(
             @RequestParam Long eventId,
+            @RequestParam String department,
+            @RequestParam String year,
             HttpSession session) {
         try {
             String username = (String) session.getAttribute("username");
