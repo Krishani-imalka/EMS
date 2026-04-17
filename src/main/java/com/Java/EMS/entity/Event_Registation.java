@@ -83,7 +83,7 @@ public class Event_Registation {
         this.registeredAt = registeredAt;
     }
 
-    enum RegistrationStatus {
+    public enum RegistrationStatus {
         REGISTERED, CANCELLED, ATTENDED
     }
 }
