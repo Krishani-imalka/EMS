@@ -92,4 +92,20 @@ public class UserController {
         else redirectAttributes.addFlashAttribute("successMessage", "User deleted successfully.");
         return "redirect:/admin/users";
     }
+    @PostMapping("/users/edit/{userId}")
+    public String editUser(
+            @PathVariable String userId,
+            @RequestParam(value = "fullName",   required = false) String fullName,
+            @RequestParam(value = "email",      required = false) String email,
+            @RequestParam(value = "phone",      required = false) String phone,
+            @RequestParam(value = "department", required = false) String department,
+            @RequestParam(value = "role",       required = false) String role,
+            @RequestParam(value = "status",     required = false) String status,
+            RedirectAttributes redirectAttributes
+    ) {
+        String error = userService.editUser(userId, fullName, email, phone, department, role, status);
+        if (error != null) redirectAttributes.addFlashAttribute("errorMessage", error);
+        else redirectAttributes.addFlashAttribute("successMessage", "User updated successfully.");
+        return "redirect:/admin/users";
+    }
 }
