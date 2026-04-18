@@ -17,8 +17,8 @@ public class LoginController {
     @Autowired
     private UserRepository userRepository;
 
-    // ── GET: show the login page ──────────────────────────────────────────────
-    @GetMapping({"/", "/login"})
+    // ── GET: show the login page
+    @GetMapping({ "/login"})
     public String showLogin() {
         return "/Fragments/Login_page";
     }
@@ -72,6 +72,82 @@ public class LoginController {
         }
 
         return "/Fragments/Login_page";
+    }
+
+    // ── Step 1: Show forgot password form ────────────────────────────────────
+    @GetMapping("/forgot-password")
+    public String showForgotPassword() {
+        return "Fragments/Forgot_password";
+    }
+
+    // ── Step 2: Verify userId + email ─────────────────────────────────────────
+    @PostMapping("/forgot-password/verify")
+    public String verifyIdentity(
+            @RequestParam String userid,
+            @RequestParam String email,
+            HttpSession session,
+            Model model
+    ) {
+        Optional<User> optionalUser = userRepository.findById(userid.trim());
+
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            if (user.getEmail().equalsIgnoreCase(email.trim())) {
+                session.setAttribute("resetUserId", user.getUserId());
+                return "redirect:/forgot-password/reset";
+            }
+            model.addAttribute("error", "Email does not match our records for this User ID.");
+        } else {
+            model.addAttribute("error", "No account found with that User ID.");
+        }
+
+        return "Fragments/Forgot_password";
+    }
+
+    // ── Step 3: Show reset form ───────────────────────────────────────────────
+    @GetMapping("/forgot-password/reset")
+    public String showResetForm(HttpSession session) {
+        if (session.getAttribute("resetUserId") == null) {
+            return "redirect:/forgot-password";
+        }
+        return "Fragments/Reset_password";
+    }
+
+    // ── Step 4: Save new password to DB ──────────────────────────────────────
+    @PostMapping("/forgot-password/reset")
+    public String resetPassword(
+            @RequestParam String newPassword,
+            @RequestParam String confirmPassword,
+            HttpSession session,
+            Model model
+    ) {
+        String resetUserId = (String) session.getAttribute("resetUserId");
+
+        if (resetUserId == null) {
+            return "redirect:/forgot-password";
+        }
+
+        if (!newPassword.equals(confirmPassword)) {
+            model.addAttribute("error", "Passwords do not match.");
+            return "Fragments/Reset_password";
+        }
+
+        if (newPassword.length() < 6) {
+            model.addAttribute("error", "Password must be at least 6 characters.");
+            return "Fragments/Reset_password";
+        }
+
+        // ✅ Find user and update password column in DB
+        Optional<User> optionalUser = userRepository.findById(resetUserId);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.setPssaword(newPassword);       // updates "password" column via setPssaword()
+            userRepository.save(user);           // saves to DB
+        }
+
+        session.removeAttribute("resetUserId");
+        model.addAttribute("success", "Password reset successfully. Please log in.");
+        return "Fragments/Login_page";
     }
 
     @GetMapping("/logout")

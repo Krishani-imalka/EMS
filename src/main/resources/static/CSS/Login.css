@@ -394,3 +394,27 @@ body::after {
   height: 3px;
   background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
 }
+
+.password-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.password-wrap input {
+  width: 100%;
+  padding-right: 2.8rem;
+}
+.toggle-pw {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  color: #888;
+  transition: color 0.2s;
+}
+.toggle-pw:hover { color: #1e3a6e; }
+.toggle-pw svg { width: 18px; height: 18px; }

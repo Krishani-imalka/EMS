@@ -19,6 +19,7 @@ public class AuthInterceptor implements HandlerInterceptor {
         // Always allow public resources
         if (uri.equals("/login") || uri.equals("/")
                 || uri.equals("/")
+                || uri.startsWith("/forgot-password")
                 || uri.startsWith("/CSS")
                 || uri.startsWith("/JS")
                 || uri.startsWith("/images")
