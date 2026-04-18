@@ -22,8 +22,7 @@
 
       <div class="user-info" onclick="toggleProfileMenu()" style="cursor:pointer; position:relative;">
         <div class="user-details">
-          <div class="user-name"
-               th:text="${session.loggedInName} ?: 'User'">
+          <div class="user-name" th:text="${session.loggedInName} ?: 'User'">
             User
           </div>
           <span class="user-badge"
@@ -33,40 +32,64 @@
           ROLE
         </span>
         </div>
+        <!-- Avatar: profile image OR initials -->
         <div class="avatar">
-          <img th:if="${session.loggedInUser != null and session.loggedInUser.profileImage != null}"
-               th:src="@{${session.loggedInUser.profileImage}}"
-               alt="Profile"
+          <img th:if="${session.loggedInUser != null and session.loggedInUser.profileImage != null
+                      and !#strings.isEmpty(session.loggedInUser.profileImage)}"
+               th:src="@{'/uploads/profiles/' + ${session.loggedInUser.profileImage}}"
+               alt="Profile Photo"
                style="width:100%; height:100%; border-radius:50%; object-fit:cover;"/>
-          <svg th:if="${session.loggedInUser == null or session.loggedInUser.profileImage == null}"
-               width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-            <circle cx="12" cy="8" r="4"/>
-            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-          </svg>
+
+          <!-- Initials fallback when no profile image -->
+          <span th:if="${session.loggedInUser == null or session.loggedInUser.profileImage == null
+                       or #strings.isEmpty(session.loggedInUser.profileImage)}"
+                class="avatar-initials"
+                th:text="${session.loggedInName != null}
+                        ? ${#strings.toUpperCase(#strings.substring(session.loggedInName, 0, 1))}
+                        : 'U'">U</span>
         </div>
-        <!-- ✅ Dropdown profile menu -->
+
+        <!-- Dropdown -->
         <div class="profile-dropdown" id="profileDropdown" style="display:none;">
+
+          <!-- User Info Block -->
           <div class="dropdown-header">
-            <div class="dropdown-name"   th:text="${session.loggedInName}   ?: 'User'">User</div>
-            <div class="dropdown-userid" th:text="${session.loggedInUserId} ?: ''"></div>
-            <div class="dropdown-email"
-                 th:text="${session.loggedInUser != null} ? ${session.loggedInUser.email} : ''">
+            <div class="dropdown-avatar">
+              <img th:if="${session.loggedInUser != null and session.loggedInUser.profileImage != null
+                          and !#strings.isEmpty(session.loggedInUser.profileImage)}"
+                   th:src="@{'/uploads/profiles/' + ${session.loggedInUser.profileImage}}"
+                   alt="Profile"/>
+              <span th:if="${session.loggedInUser == null or session.loggedInUser.profileImage == null
+                           or #strings.isEmpty(session.loggedInUser.profileImage)}"
+                    th:text="${session.loggedInName != null}
+                            ? ${#strings.toUpperCase(#strings.substring(session.loggedInName, 0, 1))}
+                            : 'U'">U</span>
+            </div>
+            <div class="dropdown-info">
+              <div class="dropdown-name"   th:text="${session.loggedInName}     ?: 'User'"></div>
+              <div class="dropdown-userid" th:text="${'ID: ' + (session.loggedInUserId ?: '')}"></div>
+              <div class="dropdown-email"
+                   th:text="${session.loggedInUser != null ? session.loggedInUser.email : ''}"></div>
+              <div class="dropdown-dept"
+                   th:if="${session.loggedInUser != null and session.loggedInUser.department != null}"
+                   th:text="${session.loggedInUser.department}"></div>
             </div>
           </div>
 
-          <hr style="margin:0.5rem 0; border:none; border-top:1px solid #eee;"/>
+          <hr class="dropdown-divider"/>
 
-          <!-- Profile link based on role -->
+          <!-- My Profile link -->
           <a class="dropdown-item"
-             th:href="${session.loggedInRole == 'ADMIN'}     ? '/admin/profile'     :
-                    (${session.loggedInRole == 'ORGANIZER'} ? '/organizer/profile' : '/student/profile')">
+             th:href="${session.loggedInRole == 'ADMIN'}      ? '/admin/profile'     :
+                    (${session.loggedInRole == 'ORGANIZER'} ? '/organizer/profile' : '/student/profile')"
+             onclick="event.stopPropagation();">
             <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
             </svg>
             My Profile
           </a>
 
-          <hr style="margin:0.5rem 0; border:none; border-top:1px solid #eee;"/>
+          <hr class="dropdown-divider"/>
 
           <a class="dropdown-item dropdown-logout" href="/logout"
              onclick="event.stopPropagation(); window.top.location.href='/logout'; return false;">
