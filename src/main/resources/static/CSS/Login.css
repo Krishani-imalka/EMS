@@ -1,0 +1,396 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #eef2f7;
+  --surface: #ffffff;
+  --border: #dce4ef;
+  --primary: #2c4a7c;
+  --primary-lt: #3d6199;
+  --accent: #c6a84b;
+  --text: #1e2d45;
+  --muted: #6b7f9a;
+  --light: #b0bed4;
+  --admin-bg: #eef2f9;
+  --admin-fg: #2c4a7c;
+  --org-bg: #e8f4f0;
+  --org-fg: #2a7a5b;
+  --stu-bg: #f0eefb;
+  --stu-fg: #5a3dbf;
+  --radius: 14px;
+  --shadow: 0 8px 40px rgba(44, 74, 124, .10);
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 40px 24px 40px;
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* ── Soft background blobs ── */
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: .30;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::before {
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(circle, #a8bfe8, transparent 70%);
+  top: -120px;
+  left: -100px;
+}
+
+body::after {
+  width: 420px;
+  height: 420px;
+  background: radial-gradient(circle, #c6d8b4, transparent 70%);
+  bottom: -80px;
+  right: -80px;
+}
+
+/* ── Card wrapper ── */
+.card-wrap {
+  width: 100%;
+  max-width: 440px;
+  position: relative;
+  z-index: 1;
+  animation: fadeUp .6s ease both;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Branding ── */
+.brand {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.brand-icon {
+  width: 72px;
+  height: 72px;
+  background: var(--primary);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
+  box-shadow: 0 6px 24px rgba(44, 74, 124, .30);
+}
+
+.brand-icon svg {
+  width: 36px;
+  height: 36px;
+}
+
+.brand h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2rem;
+  color: var(--primary);
+  letter-spacing: .5px;
+}
+
+.brand p {
+  font-size: .875rem;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+.brand small {
+  font-size: .78rem;
+  color: var(--light);
+  display: block;
+  margin-top: 2px;
+}
+
+/* ── Login card ── */
+.card {
+  background: var(--surface);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  padding: 36px 36px 28px;
+}
+
+.card-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.25rem;
+  color: var(--text);
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+/* ── Role selector ── */
+.role-label {
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.role-btn {
+  border: 2px solid var(--border);
+  background: transparent;
+  border-radius: var(--radius);
+  padding: 14px 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .2s, background .2s, transform .15s;
+}
+
+.role-btn:hover {
+  border-color: var(--primary-lt);
+  background: var(--admin-bg);
+  transform: translateY(-2px);
+}
+
+.role-btn.active {
+  border-color: var(--primary);
+  background: rgba(44, 74, 124, .06);
+}
+
+.role-btn svg {
+  width: 26px;
+  height: 26px;
+  display: block;
+  margin: 0 auto 7px;
+}
+
+.role-btn.active svg {
+  color: var(--primary);
+}
+
+.role-btn:not(.active) svg {
+  color: var(--light);
+}
+
+.role-btn span {
+  font-size: .75rem;
+  font-weight: 600;
+}
+
+.role-btn.active span {
+  color: var(--primary);
+}
+
+.role-btn:not(.active) span {
+  color: var(--muted);
+}
+
+/* ── Form fields ── */
+.field {
+  margin-bottom: 16px;
+}
+
+.field label {
+  display: block;
+  font-size: .82rem;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.field input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: .9rem;
+  color: var(--text);
+  background: #f8fafd;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.field input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(44, 74, 124, .10);
+  background: #fff;
+}
+
+.field input::placeholder {
+  color: var(--light);
+}
+
+/* ── Remember / forgot ── */
+.row-check {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: .82rem;
+  margin-bottom: 20px;
+}
+
+.row-check label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.row-check input[type=checkbox] {
+  accent-color: var(--primary);
+  width: 15px;
+  height: 15px;
+}
+
+.forgot {
+  color: var(--primary);
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.forgot:hover {
+  text-decoration: underline;
+}
+
+/* ── Sign-in button ── */
+.btn-signin {
+  display: block;
+  width: 100%;
+  padding: 13px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 11px;
+  font-family: inherit;
+  font-size: .92rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: .3px;
+  transition: background .2s, transform .15s, box-shadow .2s;
+  box-shadow: 0 4px 14px rgba(44, 74, 124, .30);
+}
+
+.btn-signin:hover {
+  background: var(--primary-lt);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(44, 74, 124, .35);
+}
+
+.btn-signin:active {
+  transform: translateY(0);
+}
+
+/* ── Quick access ── */
+.quick {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.quick p {
+  font-size: .73rem;
+  color: var(--light);
+  text-align: center;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+.quick-grid {
+  display: flex;
+  gap: 8px;
+}
+
+.quick-btn {
+  flex: 1;
+  padding: 9px 4px;
+  border: none;
+  border-radius: 9px;
+  font-family: inherit;
+  font-size: .76rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity .2s, transform .15s;
+}
+
+.quick-btn:hover {
+  opacity: .85;
+  transform: translateY(-1px);
+}
+
+.q-admin {
+  background: var(--admin-bg);
+  color: var(--admin-fg);
+}
+
+.q-org {
+  background: var(--org-bg);
+  color: var(--org-fg);
+}
+
+.q-stu {
+  background: var(--stu-bg);
+  color: var(--stu-fg);
+}
+
+/* ── Footer ── */
+.footer {
+  text-align: center;
+  font-size: .72rem;
+  color: var(--light);
+  margin-top: 20px;
+}
+
+/* ── Thin accent strip on card top ── */
+.card {
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+}
