@@ -84,6 +84,6 @@ public class Event_Registation {
     }
 
     public enum RegistrationStatus {
-        REGISTERED, CANCELLED, ATTENDED
+        REGISTERED, CANCELLED, PENDING
     }
 }

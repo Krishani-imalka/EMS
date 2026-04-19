@@ -11,6 +11,7 @@
 <!-- HEADER -->
 <div th:replace="~{Fragments/Header :: header('Admin Dashboard')}"></div>
 
+
 <main class="content">
 
   <!-- ── Stat Cards ───────────────────────────────────────────── -->
@@ -41,7 +42,7 @@
         </svg>
       </div>
       <div>
-        <div class="stat-label">Pending Approvals</div>
+        <div class="stat-label">Pending Event Approvals</div>
         <div class="stat-value" th:text="${pendingApprovals}">0</div>
       </div>
     </div>
@@ -159,6 +160,49 @@
         </tr>
         <tr th:if="${#lists.isEmpty(pendingUsers)}">
           <td colspan="4" style="text-align:center; color:#aaa; padding:20px;">No pending registrations</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Recent event Registrations Table -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Recent Event Registrations</div>
+      </div>
+      <table>
+        <thead>
+        <tr>
+          <th>Student</th>
+          <th>Event</th>
+          <th>Registered At</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="reg : ${recentRegistrations}">
+          <td>
+            <div class="user-cell-name" th:text="${reg.student.fullName}">Name</div>
+            <div class="user-cell-email" th:text="${reg.student.email}">email</div>
+          </td>
+          <td th:text="${reg.event.eventName}">Event</td>
+          <td th:text="${#temporals.format(reg.registeredAt, 'yyyy-MM-dd HH:mm')}">Date</td>
+          <td>
+      <span class="status-badge status-pending"
+            th:text="${reg.registrationStatus}">REGISTERED</span>
+          </td>
+          <td>
+            <form th:action="@{/admin/registrations/{id}/cancelled(id=${reg.registrationId})}"
+                  method="post" style="display:inline;">
+              <button type="submit" class="btn btn-reject">Cancel</button>
+            </form>
+          </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(recentRegistrations)}">
+          <td colspan="5" style="text-align:center; color:#aaa; padding:20px;">
+            No pending registrations
+          </td>
         </tr>
         </tbody>
       </table>
