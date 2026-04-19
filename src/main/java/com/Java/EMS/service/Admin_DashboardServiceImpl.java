@@ -33,7 +33,7 @@ public class Admin_DashboardServiceImpl implements Admin_DashboardService {
     public List<Event_Registation> getRecentEventRegistrations() {
         return eventRegistrationRepository
                 .findTop10ByRegistrationStatusOrderByRegisteredAtDesc(
-                        Event_Registation.RegistrationStatus.REGISTERED);
+                        Event_Registation.RegistrationStatus.PENDING);
     }
 
     @Override

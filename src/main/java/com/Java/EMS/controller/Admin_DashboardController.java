@@ -54,5 +54,15 @@ public class Admin_DashboardController {
         return "redirect:/admin/dashboard";
     }
 
+    @PostMapping("/registrations/{id}/approved")
+    public String approveRegistration(@PathVariable Long id){
+        adminDashboardService.updateRegistrationStatus(
+                id,
+                Event_Registation.RegistrationStatus.REGISTERED
+        );
+        return "redirect:/admin/dashboard";
+    }
+
+
 
 }
