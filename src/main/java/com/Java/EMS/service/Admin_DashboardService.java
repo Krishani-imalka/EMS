@@ -1,6 +1,7 @@
 package com.Java.EMS.service;
 
 import com.Java.EMS.entity.Event;
+import com.Java.EMS.entity.Event_Registation;
 import com.Java.EMS.entity.User;
 
 import java.util.List;
@@ -23,4 +24,7 @@ public interface Admin_DashboardService {
 
      void approvedEvent(Long eventId);
 
+    List<Event_Registation> getRecentEventRegistrations();
+
+    void updateRegistrationStatus(Long registrationId, Event_Registation.RegistrationStatus status);
 }
