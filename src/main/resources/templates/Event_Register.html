@@ -51,16 +51,35 @@
 
       <hr class="divider"/>
 
+      <!-- User ID Verification -->
+      <div class="form-row">
+        <label class="form-label" for="userIdInput">
+          User ID <span class="req">*</span>
+          <span class="opt"> — must match your account</span>
+        </label>
+        <div style="position:relative;">
+          <input type="text"
+                 id="userIdInput"
+                 maxlength="10"
+                 placeholder="Enter your User ID to verify"
+                 autocomplete="off"/>
+          <!-- shield icon on the right -->
+          <svg style="position:absolute;right:12px;top:50%;transform:translateY(-50%);
+                      width:16px;height:16px;color:#9ca3af;pointer-events:none;"
+               viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+      </div>
+
+      <hr class="divider"/>
+
       <!-- Pre-filled read-only fields from logged-in user -->
       <div class="grid-2">
         <div class="form-row">
           <label class="form-label">Full Name</label>
-          <!--
-            IMPORTANT: Replace 'name' below with the exact field name
-            in your User entity e.g. fullName, userName, etc.
-          -->
           <input type="text"
-                 th:value="${loggedInUser != null ? loggedInUser.fullname : ''}"
+                 th:value="${loggedInUser != null ? loggedInUser.fullName : ''}"
                  readonly
                  style="background:#f9fafb; color:#6b7280; cursor:not-allowed;"/>
         </div>
@@ -81,18 +100,11 @@
           </label>
           <select id="department">
             <option value="">— Select department —</option>
-            <option th:value="'Computer Science'"
-                    th:selected="${loggedInUser != null and loggedInUser.department == 'Computer Science'}">Computer Science</option>
-            <option th:value="'Information Technology'"
-                    th:selected="${loggedInUser != null and loggedInUser.department == 'Information Technology'}">Information Technology</option>
-            <option th:value="'Software Engineering'"
-                    th:selected="${loggedInUser != null and loggedInUser.department == 'Software Engineering'}">Software Engineering</option>
-            <option th:value="'Electrical Engineering'"
-                    th:selected="${loggedInUser != null and loggedInUser.department == 'Electrical Engineering'}">Electrical Engineering</option>
-            <option th:value="'Civil Engineering'"
-                    th:selected="${loggedInUser != null and loggedInUser.department == 'Civil Engineering'}">Civil Engineering</option>
-            <option th:value="'Other'"
-                    th:selected="${loggedInUser != null and loggedInUser.department == 'Other'}">Other</option>
+            <option th:each="dept : ${departments}"
+                    th:value="${dept}"
+                    th:text="${dept}"
+                    th:selected="${loggedInUser != null and loggedInUser.department == dept}">
+            </option>
           </select>
         </div>
         <div class="form-row">
@@ -129,24 +141,42 @@
 </div>
 
 <script>
+  const loggedInUserId = /*[[${loggedInUser != null ? loggedInUser.userId : ''}]]*/ '';
+
   function submitForm() {
     const eventId = document.getElementById('eventSelect').value;
     const dept    = document.getElementById('department').value;
     const year    = document.getElementById('year').value;
 
     if (!eventId) return showBanner('error', 'Please select an event.');
+    if (!userId)   return showBanner('error', 'Please enter your User ID.');
     if (!dept)    return showBanner('error', 'Please select your department.');
     if (!year)    return showBanner('error', 'Please select your year of study.');
 
+    if (loggedInUserId && userId !== loggedInUserId) {
+      return showBanner('error', 'User ID does not match your account. Please enter your own User ID.');
+    }
+
+    // ── Send to backend (server does the authoritative userId check) ─
     fetch('/student/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ eventId, department: dept, year  }).toString()
+      body: new URLSearchParams({
+        eventId,
+        userId,
+        department: dept,
+        year,
+        notes
+      }).toString()
     })
             .then(r => r.json())
             .then(data => {
-              if (data.success) { showBanner('success', data.message); resetForm(); }
-              else              { showBanner('error', data.message); }
+              if (data.success) {
+                showBanner('success', data.message);
+                resetForm();
+              } else {
+                showBanner('error', data.message);
+              }
             })
             .catch(() => showBanner('error', 'Network error. Please try again.'));
   }
@@ -165,10 +195,11 @@
   }
 
   function resetForm() {
-    document.getElementById('eventSelect').value = '';
-    document.getElementById('department').value  = '';
-    document.getElementById('year').value        = '';
-    document.getElementById('notes').value       = '';
+    document.getElementById('eventSelect').value  = '';
+    document.getElementById('userIdInput').value  = '';
+    document.getElementById('department').value   = '';
+    document.getElementById('year').value         = '';
+    document.getElementById('notes').value        = '';
     document.getElementById('errorBanner').classList.remove('visible');
     document.getElementById('successBanner').classList.remove('visible');
   }
