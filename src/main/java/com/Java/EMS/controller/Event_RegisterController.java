@@ -25,16 +25,17 @@ public class Event_RegisterController {
     // Load registration page with approved events in dropdown
     @GetMapping("/register-page")
     public String showRegistrationPage(Model model, HttpSession session) {
-        List<Event> events = registrationService.getApprovedEvents();
-        model.addAttribute("events", events);
+        model.addAttribute("events", registrationService.getApprovedEvents());
 
-        // Get logged user from session
         String username = (String) session.getAttribute("username");
-
         if (username != null) {
             User loggedInUser = registrationService.getLoggedInUser(username);
             model.addAttribute("loggedInUser", loggedInUser);
         }
+
+        // Load distinct department values from the users table
+        model.addAttribute("departments", registrationService.getDistinctDepartments());
+
         return "Event_Register";
     }
 
@@ -43,12 +44,22 @@ public class Event_RegisterController {
     @ResponseBody
     public ResponseEntity<?> registerForEvent(
             @RequestParam Long eventId,
+            @RequestParam String userId,
             @RequestParam String department,
             @RequestParam String year,
+            @RequestParam(required = false) String notes,
             HttpSession session) {
         try {
             String username = (String) session.getAttribute("username");
-            Event_Registation saved = registrationService.registerStudentForEvent(eventId, username);
+
+            if (username == null) {
+                return ResponseEntity.status(401).body(Map.of(
+                        "success", false,
+                        "message", "Session expired. Please log in again."
+                ));
+            }
+
+            Event_Registation saved = registrationService.registerStudentForEvent(eventId, userId, username);
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "registrationId", saved.getRegistrationId(),
