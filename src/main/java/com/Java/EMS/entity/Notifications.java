@@ -16,14 +16,15 @@ public class Notifications {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "title", nullable = false, length = 200)
-    private String title;
+    @ManyToOne
+    @JoinColumn(name = "event_id", nullable = false)
+    private Event event;
 
     @Column(name = "message", nullable = false, columnDefinition = "TEXT")
     private String message;
 
-    @Column(name = "is_read")
-    private Boolean isRead = false;
+    @Column(name = "event_name", nullable = false, length = 200)
+    private String eventName;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -36,12 +37,12 @@ public class Notifications {
     public Notifications() {
     }
 
-    public Notifications(Long notificationId, User user, String title, String message, Boolean isRead, LocalDateTime createdAt) {
+    public Notifications(Long notificationId, User user, Event event, String message, String eventName, LocalDateTime createdAt) {
         this.notificationId = notificationId;
         this.user = user;
-        this.title = title;
+        this.event = event;
         this.message = message;
-        this.isRead = isRead;
+        this.eventName = eventName;
         this.createdAt = createdAt;
     }
 
@@ -61,13 +62,9 @@ public class Notifications {
         this.user = user;
     }
 
-    public String getTitle() {
-        return title;
-    }
+    public Event getEvent() { return event; }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+    public void setEvent(Event event) { this.event = event; }
 
     public String getMessage() {
         return message;
@@ -77,13 +74,9 @@ public class Notifications {
         this.message = message;
     }
 
-    public Boolean getRead() {
-        return isRead;
-    }
+    public String getEventName() { return eventName; }
 
-    public void setRead(Boolean read) {
-        isRead = read;
-    }
+    public void setEventName(String eventName) { this.eventName = eventName; }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;

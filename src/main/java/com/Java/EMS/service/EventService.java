@@ -26,6 +26,9 @@ import java.util.UUID;
 @Service
 public class EventService {
     @Autowired
+    private NotificationService notificationService;
+
+    @Autowired
     private EventRepository eventRepository;
 
     @Autowired
@@ -63,6 +66,30 @@ public class EventService {
             event.setAdminRemarks(adminRemarks);
         }
         eventRepository.save(event);
+
+
+        // ── Send notification to the event organizer ──────────────────────
+        User organizer = event.getOrganizer();
+        String message;
+
+        if (newStatus == Event.EventStatus.APPROVED) {
+            message = "Your event \"" + event.getEventName() + "\" has been APPROVED.";
+            if (adminRemarks != null && !adminRemarks.isBlank()) {
+                message += " Remarks: " + adminRemarks;
+            }
+        } else if (newStatus == Event.EventStatus.REJECTED) {
+            message = "Your event \"" + event.getEventName() + "\" has been REJECTED.";
+            if (adminRemarks != null && !adminRemarks.isBlank()) {
+                message += " Reason: " + adminRemarks;
+            } else {
+                message += " No reason provided.";
+            }
+        } else {
+            message = "Your event \"" + event.getEventName() + "\" status changed to " + newStatus.name() + ".";
+        }
+
+        notificationService.sendNotification(organizer, event, message);
+
         return null; // null = success
     }
 
@@ -252,6 +279,26 @@ public class EventService {
         } catch (IOException e) {
             return "ERROR: Failed to upload banner image: " + e.getMessage();
         }
+    }
+
+    public java.util.Set<Long> getClashingEventIds() {
+        List<Event> allEvents = eventRepository.findByStatus(Event.EventStatus.PENDING);
+        java.util.Set<Long> clashingIds = new java.util.HashSet<>();
+
+        for (Event event : allEvents) {
+            if (event.getVenue() == null) continue;
+            List<Event> clashes = eventRepository.findClashingPendingEvents(
+                    event.getVenue(),
+                    event.getEventDate(),
+                    event.getStartTime(),
+                    event.getEndTime(),
+                    event.getEventId()
+            );
+            if (!clashes.isEmpty()) {
+                clashingIds.add(event.getEventId());
+            }
+        }
+        return clashingIds;
     }
 
 }

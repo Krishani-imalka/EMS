@@ -760,3 +760,20 @@ td {
   color: var(--red);
   border: 1px solid var(--red-border);
 }
+
+.clash-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  vertical-align: middle;
+}
+
+.row-clash {
+  background-color: #fffbea !important;
+}

@@ -29,12 +29,14 @@ public class EventController {
     public String eventManagement(Model model) {
         List<Event> events = eventService.getAllEvents();
         List<Venue> venues = eventService.getAllVenues();
+        java.util.Set<Long> clashingIds = eventService.getClashingEventIds();
         model.addAttribute("events", events);
         model.addAttribute("venues", venues);
+        model.addAttribute("clashingIds", clashingIds);
         return "Event_management";
     }
 
-    // ── CREATE (inline panel form POST) ──────────────────────────────────────
+    // ── CREATE (inline panel form POST)
     @PostMapping("/events/create")
     public String createEvent(
             @RequestParam String organizerUserId,
