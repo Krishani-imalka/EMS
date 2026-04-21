@@ -8,14 +8,22 @@
 
 <body>
 <div th:replace="~{Fragments/Header :: header('Create new Events')}"></div>
+<br>
 
+<div class="alert-wrapper">
+    <div th:if="${successMessage}" class="alert-success">
+        <span class="alert-icon">✓</span>
+        <span th:text="${successMessage}"></span>
+    </div>
+    <div th:if="${errorMessage}" class="alert-error">
+        <span class="alert-icon">✕</span>
+        <span th:text="${errorMessage}"></span>
+    </div>
+</div>
 <div class="page-wrapper">
     <div class="form-card">
 
         <h5 class="form-title">Event Details</h5>
-
-        <div th:if="${successMessage}" class="alert-success" th:text="${successMessage}"></div>
-        <div th:if="${errorMessage}"   class="alert-error"   th:text="${errorMessage}"></div>
 
         <form th:action="@{/organizer/createEvent}" method="post" enctype="multipart/form-data">
 
@@ -87,8 +95,9 @@
 
             <div class="field-group">
                 <label class="field-label">Event Banner Image <span class="optional">(optional)</span></label>
-                <label class="upload-box">
-                    <input type="file" name="bannerImage" accept="image/*" class="upload-input">
+                <label class="upload-box" id="uploadBox">
+                    <input type="file" name="bannerImage" accept="image/*" class="upload-input"
+                           id="bannerInput" onchange="handleFileSelect(this)">
                     <div class="upload-icon">
                         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -96,19 +105,53 @@
                             <line x1="12" y1="3" x2="12" y2="15"/>
                         </svg>
                     </div>
-                    <p class="upload-text">Click to upload or drag and drop</p>
+                    <p class="upload-text" id="uploadText">Click to upload or drag and drop</p>
                     <p class="upload-hint">PNG, JPG up to 5MB</p>
+                    <p class="upload-filename" id="uploadFilename"></p>
                 </label>
             </div>
 
             <div class="form-actions">
                 <button type="submit" class="btn-submit">Submit Event</button>
-                <a th:href="@{/organizer/dashboard}" class="btn-cancel">Cancel</a>
+                <a th:href="@{/organizer/dashboard}" class="btn-cancel" role="button">Cancel</a>
             </div>
 
         </form>
     </div>
 </div>
+
+<script>
+    function handleFileSelect(input) {
+        const filename = document.getElementById('uploadFilename');
+        const uploadText = document.getElementById('uploadText');
+        const uploadBox = document.getElementById('uploadBox');
+
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+
+            // Validate size (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                filename.textContent = '';
+                uploadText.textContent = 'File too large! Max 5MB.';
+                uploadText.style.color = '#991b1b';
+                input.value = '';
+                return;
+            }
+
+            filename.textContent = '✓ ' + file.name;
+            uploadText.textContent = 'File selected';
+            uploadText.style.color = '#15803d';
+            uploadBox.style.borderColor = '#6366f1';
+            uploadBox.style.background = '#f3f4ff';
+        } else {
+            filename.textContent = '';
+            uploadText.textContent = 'Click to upload or drag and drop';
+            uploadText.style.color = '';
+            uploadBox.style.borderColor = '';
+            uploadBox.style.background = '';
+        }
+    }
+</script>
 
 </body>
 </html>

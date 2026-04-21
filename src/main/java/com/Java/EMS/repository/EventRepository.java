@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, Long> {
@@ -29,6 +30,12 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findByOrganizerOrderByCreatedAtDesc(User organizer);
     List<Event> findByOrganizerOrderByCreatedAtDesc(User organizer, Pageable pageable);
     List<Event> findByStatus(Event.EventStatus status);
+
+
+    List<Event> findByOrganizer_UserId(String organizerUserId);
+    Optional<Event> findByEventIdAndOrganizer_UserId(Long eventId, String organizerUserId);
+    List<Event> findByOrganizer_UserIdAndStatus(String organizerUserId, Event.EventStatus status);
+
 
     @Query("SELECT e FROM Event e WHERE e.status = 'APPROVED' AND (" +
             "LOWER(e.eventName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +

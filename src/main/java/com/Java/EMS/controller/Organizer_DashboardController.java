@@ -31,7 +31,18 @@ public class Organizer_DashboardController {
 
 
     @GetMapping("/dashboard")
-    public String dashboard(Model model) {
+    public String dashboard(HttpSession session, Model model) {
+        String organizerUserId = (String) session.getAttribute("loggedInUserId");
+        if (organizerUserId == null) {
+            return "redirect:/login";
+        }
+
+        User organizer = userRepository.findById(organizerUserId).orElse(null);
+        if (organizer == null) {
+            return "redirect:/login";
+        }
+
+
         List<Event> events = eventService.getAllEvents();
 
         long total = events.size();
@@ -59,11 +70,12 @@ public class Organizer_DashboardController {
     }
 
 
-
     @GetMapping("/createEvent")
-    public String showCreateEventForm(Model model) {
-        List<Venue> venues = eventService.getAllVenues();
-        model.addAttribute("venues",     venues);
+    public String showCreateEventForm(HttpSession session, Model model) {
+        if (session.getAttribute("loggedInUserId") == null) {
+            return "redirect:/login";
+        }
+        model.addAttribute("venues",     eventService.getAllVenues());
         model.addAttribute("categories", Event.EventCategory.values());
         return "Organizer_NewEventForm";
     }
@@ -115,25 +127,106 @@ public class Organizer_DashboardController {
     }
 
 
-//    @GetMapping("/Allevents")
-//    public String Allevents(Model model, Authentication authentication) {
-//
-//        if (authentication == null) {
-//            return "redirect:/login"; // prevent crash
-//        }
-//
-//        String username = authentication.getName();
-//        User organizer = userRepository.findByUsername(username).orElse(null);
-//
-//        if (organizer == null) {
-//            model.addAttribute("error", "User not found");
-//            return "error";
-//        }
-//        List<Event> events = eventService.getEventsByOrganizer(organizer);
-//        model.addAttribute("events", events);
-//
-//        return "Organizer_AllEvent";
-//    }
+    // ─── Show All Events for logged-in organizer ──────────────────────────────
+    @GetMapping("/Allevents")
+    public String showAllEvents(HttpSession session, Model model) {
+        String organizerUserId = (String) session.getAttribute("loggedInUserId");
+        if (organizerUserId == null) return "redirect:/login";
+
+        List<Event> events = eventService.getEventsByOrganizer(organizerUserId);
+        model.addAttribute("events", events);
+        return "Organizer_AllEvent";
+    }
+
+
+    @PostMapping("/deleteEvent/{eventId}")
+    public String deleteEvent(@PathVariable Long eventId,
+                              HttpSession session,
+                              RedirectAttributes redirectAttributes) {
+        String organizerUserId = (String) session.getAttribute("loggedInUserId");
+        if (organizerUserId == null) return "redirect:/login";
+
+        String error = eventService.deleteEvent(eventId, organizerUserId);
+        if (error != null) {
+            redirectAttributes.addFlashAttribute("errorMessage", error);
+        } else {
+            redirectAttributes.addFlashAttribute("successMessage", "Event deleted successfully.");
+        }
+        return "redirect:/organizer/Allevents";
+    }
+
+    // ─── Show Edit Form ───────────────────────────────────────────────────────
+    @GetMapping("/editEvent/{eventId}")
+    public String showEditForm(@PathVariable Long eventId,
+                               HttpSession session, Model model) {
+        String organizerUserId = (String) session.getAttribute("loggedInUserId");
+        if (organizerUserId == null) return "redirect:/login";
+
+        Event event = eventService.getEventByIdAndOrganizer(eventId, organizerUserId);
+        if (event == null) return "redirect:/organizer/Allevents";
+
+        model.addAttribute("event", event);
+        model.addAttribute("venues", eventService.getAllVenues());
+        model.addAttribute("categories", Event.EventCategory.values());
+        return "Organizer_EditEventForm";
+    }
+
+    // ─── Handle Edit Submission ───────────────────────────────────────────────
+    @PostMapping("/editEvent/{eventId}")
+    public String updateEvent(
+            @PathVariable Long eventId,
+            @RequestParam("eventName")         String eventName,
+            @RequestParam("description")       String description,
+            @RequestParam("eventDate")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate eventDate,
+            @RequestParam("startTime")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime startTime,
+            @RequestParam("endTime")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime endTime,
+            @RequestParam("location")          String location,
+            @RequestParam(value = "venueName", required = false) String venueName,
+            @RequestParam("category")          Event.EventCategory category,
+            @RequestParam("expectedAttendees") Integer expectedAttendees,
+            @RequestParam("contactInfo")       String contactInfo,
+            @RequestParam(value = "bannerImage", required = false) MultipartFile bannerImage,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        String organizerUserId = (String) session.getAttribute("loggedInUserId");
+        if (organizerUserId == null) return "redirect:/login";
+
+        String error = eventService.updateEvent(
+                eventId, organizerUserId,
+                eventName, description,
+                eventDate, startTime, endTime,
+                location, venueName,
+                category, expectedAttendees,
+                contactInfo, bannerImage
+        );
+
+        if (error != null) {
+            redirectAttributes.addFlashAttribute("errorMessage", error);
+            return "redirect:/organizer/editEvent/" + eventId;
+        }
+
+        redirectAttributes.addFlashAttribute("successMessage", "Event updated successfully.");
+        return "redirect:/organizer/Allevents";
+    }
+
+    // ─── View Event Details
+    @GetMapping("/viewEvent/{eventId}")
+    public String viewEvent(@PathVariable Long eventId,
+                            HttpSession session, Model model) {
+        String organizerUserId = (String) session.getAttribute("loggedInUserId");
+        if (organizerUserId == null) return "redirect:/login";
+
+        Event event = eventService.getEventByIdAndOrganizer(eventId, organizerUserId);
+        if (event == null) return "redirect:/organizer/Allevents";
+
+        model.addAttribute("event", event);
+        return "Organizer_ViewEvent";
+    }
+
 }
 
 
