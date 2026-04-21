@@ -19,7 +19,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
-
 @Controller
 @RequestMapping("/organizer")
 public class Organizer_DashboardController {
@@ -135,6 +134,10 @@ public class Organizer_DashboardController {
 
         List<Event> events = eventService.getEventsByOrganizer(organizerUserId);
         model.addAttribute("events", events);
+
+        model.addAttribute("venues", eventService.getAllVenues());
+        model.addAttribute("categories", Event.EventCategory.values());
+
         return "Organizer_AllEvent";
     }
 

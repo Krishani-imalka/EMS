@@ -272,7 +272,14 @@ public class EventService {
         try {
             Path uploadPath = Paths.get(uploadDir);
             Files.createDirectories(uploadPath);
-            String fileName = UUID.randomUUID() + "_" + bannerImage.getOriginalFilename();
+
+            // ✅ Sanitize: replace spaces and special chars with underscores
+            String originalName = bannerImage.getOriginalFilename();
+            String sanitized = originalName
+                    .replaceAll("\\s+", "_")           // spaces → underscore
+                    .replaceAll("[^a-zA-Z0-9._\\-]", "_"); // other special chars → underscore
+
+            String fileName = UUID.randomUUID() + "_" + sanitized;
             Path filePath = uploadPath.resolve(fileName);
             Files.copy(bannerImage.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
             return fileName;
