@@ -15,16 +15,16 @@ body {
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    padding: 40px 16px;
+    padding: 30px 40px;
 }
 
 /* CARD */
 .form-card {
     background: #ffffff;
     border-radius: 12px;
-    padding: 30px;
+    padding: 36px 40px;
     width: 100%;
-    max-width: 600px;
+    max-width: 1000px;
     border: 1px solid #e5e7eb;
     box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
@@ -197,10 +197,11 @@ body {
 
 /* ALERT WRAPPER — sits below header, above form */
 .alert-wrapper {
-    max-width: 600px;
+    max-width: 1000px;
     margin: 20px auto 0;
-    padding: 0 16px;
+    padding: 0 40px;
 }
+
 
 .alert-success {
     background: #f0fdf4;
