@@ -301,4 +301,71 @@ public class EventService {
         return clashingIds;
     }
 
+
+
+    // ─── Get events by organizer ──────────────────────────────────────────────
+    public List<Event> getEventsByOrganizer(String organizerUserId) {
+        return eventRepository.findByOrganizer_UserId(organizerUserId); // ✅ fixed
+    }
+
+    // ─── Get single event (ownership check) ──────────────────────────────────
+    public Event getEventByIdAndOrganizer(Long eventId, String organizerUserId) { // ✅ Long
+        return eventRepository.findByEventIdAndOrganizer_UserId(eventId, organizerUserId)
+                .orElse(null);
+    }
+
+    // ─── Delete event (organizer-scoped) ─────────────────────────────────────
+    public String deleteEvent(Long eventId, String organizerUserId) { // ✅ Long
+        Event event = eventRepository.findByEventIdAndOrganizer_UserId(eventId, organizerUserId)
+                .orElse(null);
+        if (event == null) return "Event not found or unauthorized.";
+        eventRepository.delete(event);
+        return null;
+    }
+
+    // ─── Update event (organizer-scoped) ─────────────────────────────────────
+    public String updateEvent(
+            Long eventId, String organizerUserId, // ✅ Long
+            String eventName, String description,
+            LocalDate eventDate, LocalTime startTime, LocalTime endTime,
+            String location, String venueName,
+            Event.EventCategory category, Integer expectedAttendees,
+            String contactInfo, MultipartFile bannerImage) {
+
+        Event event = eventRepository.findByEventIdAndOrganizer_UserId(eventId, organizerUserId)
+                .orElse(null);
+        if (event == null) return "Event not found or unauthorized.";
+
+        if (event.getStatus() != Event.EventStatus.PENDING) {
+            return "Only pending events can be edited.";
+        }
+
+        event.setEventName(eventName);
+        event.setDescription(description);
+        event.setEventDate(eventDate);
+        event.setStartTime(startTime);
+        event.setEndTime(endTime);
+        event.setLocation(location);
+
+        if (venueName != null && !venueName.isBlank()) {
+            Venue venue = venueRepository.findByVName(venueName).orElse(null);
+            event.setVenue(venue);
+        }
+
+        event.setCategory(category);
+        event.setExpectedAttendees(expectedAttendees);
+        event.setContactInfo(contactInfo);
+
+        if (bannerImage != null && !bannerImage.isEmpty()) {
+            String savedPath = saveBannerImage(bannerImage);
+            if (savedPath != null && savedPath.startsWith("ERROR:")) {
+                return savedPath.substring(6);
+            }
+            event.setBannerImage(savedPath);
+        }
+
+        eventRepository.save(event);
+        return null;
+    }
+
 }
