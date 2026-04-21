@@ -10,7 +10,9 @@ import com.Java.EMS.repository.EventRepository;
 import com.Java.EMS.repository.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class Event_RegisterService {
@@ -37,7 +39,10 @@ public class Event_RegisterService {
 
     // Load only APPROVED events for the dropdown
     public List<Event> getApprovedEvents() {
-        return eventRepository.findByStatus(Event.EventStatus.APPROVED);
+        return eventRepository.findByStatus(Event.EventStatus.APPROVED)
+                .stream()
+                .filter(e -> e.getEventDate() == null || !e.getEventDate().isBefore(LocalDate.now()))
+                .collect(Collectors.toList());
     }
 
 
@@ -70,14 +75,32 @@ public class Event_RegisterService {
             throw new IllegalStateException("This event is no longer open for registration.");
         }
 
+        // 6. ── CHECK: Past event block ──
+        if (event.getEventDate() != null && event.getEventDate().isBefore(LocalDate.now())) {
+            throw new IllegalStateException(
+                    "Registration closed. This event took place on " + event.getEventDate() + ".");
+        }
+
+        // 7. Already registered check
         if (registrationRepository.existsByEventAndStudent(event, student)) {
             throw new IllegalStateException("You are already registered for this event.");
+        }
+
+        // 7. ── CHECK: Capacity limit using expectedAttendees
+        if (event.getExpectedAttendees() != null) {
+            long currentCount = registrationRepository.countByEventAndRegistrationStatusNot(
+                    event, Event_Registation.RegistrationStatus.CANCELLED);
+            if (currentCount >= event.getExpectedAttendees()) {
+                throw new IllegalStateException(
+                        "This event is fully booked. Maximum capacity of "
+                                + event.getExpectedAttendees() + " attendees has been reached.");
+            }
         }
 
         Event_Registation registration = new Event_Registation();
         registration.setEvent(event);
         registration.setStudent(student);
-
+        registration.setRegistrationStatus(Event_Registation.RegistrationStatus.PENDING);
 
         return registrationRepository.save(registration);
     }

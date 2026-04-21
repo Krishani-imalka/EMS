@@ -17,4 +17,5 @@ public interface Event_RegisterRepository extends JpaRepository <Event_Registati
     List<Event_Registation> findTop10ByRegistrationStatusOrderByRegisteredAtDesc(
             Event_Registation.RegistrationStatus status);
 
+    long countByEventAndRegistrationStatusNot(Event event,Event_Registation.RegistrationStatus status);
 }

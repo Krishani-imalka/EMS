@@ -26,16 +26,18 @@ public class Event_RegisterController {
     @GetMapping("/register-page")
     public String showRegistrationPage(Model model, HttpSession session) {
         model.addAttribute("events", registrationService.getApprovedEvents());
-
-        String username = (String) session.getAttribute("username");
-        if (username != null) {
-            User loggedInUser = registrationService.getLoggedInUser(username);
-            model.addAttribute("loggedInUser", loggedInUser);
-        }
-
-        // Load distinct department values from the users table
         model.addAttribute("departments", registrationService.getDistinctDepartments());
 
+        String username = (String) session.getAttribute("loggedInUsername");
+        if (username != null) {
+            try{
+            User loggedInUser = registrationService.getLoggedInUser(username);
+            model.addAttribute("loggedInUser", loggedInUser);
+           }
+            catch (Exception e) {
+
+        }
+    }
         return "Event_Register";
     }
 
@@ -50,7 +52,7 @@ public class Event_RegisterController {
             @RequestParam(required = false) String notes,
             HttpSession session) {
         try {
-            String username = (String) session.getAttribute("username");
+            String username = (String) session.getAttribute("loggedInUsername");
 
             if (username == null) {
                 return ResponseEntity.status(401).body(Map.of(
