@@ -114,17 +114,17 @@
         <button th:if="${event.status.name() == 'PENDING'}"
                 class="btn btn-edit"
                 th:attr="
-                  data-id=${event.eventId},
-                  data-name=${event.eventName},
-                  data-desc=${event.description},
-                  data-date=${event.eventDate},
-                  data-start=${event.startTime},
-                  data-end=${event.endTime},
-                  data-location=${event.location},
-                  data-attendees=${event.expectedAttendees},
-                  data-contact=${event.contactInfo},
-                  data-category=${event.category},
-                  data-venue=${event.venue != null ? event.venue.vName : ''}"
+          data-id=${event.eventId},
+          data-name=${event.eventName},
+          data-desc=${event.description},
+          data-date=${event.eventDate},
+          data-start=${#temporals.format(event.startTime,'HH:mm')},
+          data-end=${#temporals.format(event.endTime,'HH:mm')},
+          data-location=${event.location},
+          data-attendees=${event.expectedAttendees},
+          data-contact=${event.contactInfo},
+          data-category=${event.category},
+          data-venue=${event.venue != null ? event.venue.vName : ''}"
                 onclick="openEditModal(this)">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
