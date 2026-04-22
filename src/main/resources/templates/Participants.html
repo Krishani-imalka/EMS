@@ -15,14 +15,13 @@
     <!-- Page Header -->
     <div class="ep-page-header">
         <div>
-            <h1 class="ep-title">Event Participants</h1>
-            <p class="ep-subtitle">View all students registered for your events</p>
+            <h1 class="ep-title">My Event Participants</h1>
         </div>
 
         <!-- Event Filter Dropdown -->
         <form method="get" th:action="@{/organizer/participants}" class="ep-filter-form">
             <select name="eventId" class="ep-select" onchange="this.form.submit()">
-                <option value="">— All Events —</option>
+                <option value="">All Events</option>
                 <option th:each="event : ${organizerEvents}"
                         th:value="${event.eventId}"
                         th:text="${event.eventName}"
