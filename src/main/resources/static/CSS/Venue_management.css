@@ -1,0 +1,354 @@
+/* ── Venue Management CSS ── */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #f3f4f6;
+    color: #111827;
+}
+
+/* ── Wrapper ── */
+.vm-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px;
+}
+
+/* ── Page Header ── */
+.vm-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.vm-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.vm-subtitle {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+/* ── Add Button ── */
+.btn-add {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #1e3a5f;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+
+.btn-add:hover {
+    background: #162d4a;
+}
+
+/* ── Flash Banners ── */
+.vm-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 20px;
+}
+
+.vm-banner-success {
+    background: #f0fdf4;
+    color: #16a34a;
+    border: 1px solid #bbf7d0;
+}
+
+.vm-banner-error {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+}
+
+/* ── Inline Add Venue Form ── */
+.vm-inline-form {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    padding: 22px 24px;
+    margin-bottom: 24px;
+    border-left: 4px solid #2563eb;
+    animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.vm-inline-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 16px;
+}
+
+.vm-inline-fields {
+    display: flex;
+    gap: 14px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.vm-field-group {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 160px;
+}
+
+.vm-field-btn {
+    flex: 0 0 auto;
+    min-width: unset;
+}
+
+/* ── Stats Strip ── */
+.vm-stats {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.vm-stat-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 18px 24px;
+    flex: 1;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+}
+
+.vm-stat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.vm-stat-icon svg {
+    width: 22px;
+    height: 22px;
+}
+
+.vm-stat-icon.blue { background: #eff6ff; color: #2563eb; }
+
+.vm-stat-label {
+    font-size: 0.78rem;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.vm-stat-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #111827;
+    line-height: 1.2;
+}
+
+/* ── Table Card ── */
+.vm-card {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    overflow: hidden;
+}
+
+.vm-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.vm-table thead tr {
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.vm-table th {
+    text-align: left;
+    padding: 13px 18px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #6b7280;
+}
+
+.vm-table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: middle;
+}
+
+.vm-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.vm-table tbody tr:hover {
+    background: #f9fafb;
+    transition: background 0.15s;
+}
+
+.vm-index {
+    color: #9ca3af;
+    font-weight: 500;
+    width: 40px;
+}
+
+.vm-venue-name {
+    font-weight: 600;
+    color: #111827;
+}
+
+.vm-location {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #4b5563;
+}
+
+.vm-location svg {
+    color: #9ca3af;
+    flex-shrink: 0;
+}
+
+.vm-description {
+    color: #6b7280;
+    font-size: 0.82rem;
+    max-width: 280px;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ── Delete Button ── */
+.btn-delete {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.btn-delete:hover {
+    background: #fecaca;
+    border-color: #f87171;
+}
+
+/* ── Empty State ── */
+.vm-empty {
+    text-align: center;
+    padding: 48px 20px;
+    color: #9ca3af;
+}
+
+.vm-empty svg {
+    margin: 0 auto 12px;
+    display: block;
+}
+
+.vm-empty p {
+    font-size: 0.875rem;
+}
+
+/* ── Form Inputs ── */
+.vm-label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 6px;
+}
+
+.vm-label .req {
+    color: #ef4444;
+    margin-left: 2px;
+}
+
+.vm-label .opt {
+    color: #9ca3af;
+    font-weight: 400;
+    font-size: 0.78rem;
+}
+
+.vm-input {
+    width: 100%;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 9px 13px;
+    font-size: 0.875rem;
+    color: #111827;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    font-family: inherit;
+    background: #fff;
+}
+
+.vm-input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+}
+
+.vm-input::placeholder {
+    color: #9ca3af;
+}
+
+/* ── Submit Button ── */
+.btn-submit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    background: #1e3a5f;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 22px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+    width: 100%;
+}
+
+.btn-submit:hover {
+    background: #162d4a;
+}

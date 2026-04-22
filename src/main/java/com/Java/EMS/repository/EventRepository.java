@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, Long> {
@@ -29,6 +30,13 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findByOrganizerOrderByCreatedAtDesc(User organizer);
     List<Event> findByOrganizerOrderByCreatedAtDesc(User organizer, Pageable pageable);
     List<Event> findByStatus(Event.EventStatus status);
+
+
+    List<Event> findByOrganizer_UserId(String organizerUserId);
+    Optional<Event> findByEventIdAndOrganizer_UserId(Long eventId, String organizerUserId);
+    List<Event> findByOrganizer_UserIdAndStatus(String organizerUserId, Event.EventStatus status);
+
+    List<Event> findByOrganizerOrderByEventDateDesc(User organizer);
 
     @Query("SELECT e FROM Event e WHERE e.status = 'APPROVED' AND (" +
             "LOWER(e.eventName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
@@ -89,9 +97,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
         SELECT COUNT(e) > 0 FROM Event e
         WHERE e.venue = :venue
           AND e.eventDate = :eventDate
-          AND e.status NOT IN (
-              com.Java.EMS.entity.Event.EventStatus.CANCELLED,
-              com.Java.EMS.entity.Event.EventStatus.REJECTED)
+          AND e.status = com.Java.EMS.entity.Event.EventStatus.APPROVED
           AND e.startTime < :endTime
           AND e.endTime   > :startTime
     """)
@@ -107,9 +113,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
         WHERE e.venue = :venue
           AND e.eventDate = :eventDate
           AND e.eventId  <> :eventId
-          AND e.status NOT IN (
-              com.Java.EMS.entity.Event.EventStatus.CANCELLED,
-              com.Java.EMS.entity.Event.EventStatus.REJECTED)
+          AND e.status = com.Java.EMS.entity.Event.EventStatus.APPROVED
           AND e.startTime < :endTime
           AND e.endTime   > :startTime
     """)
@@ -119,5 +123,22 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             @Param("startTime") LocalTime startTime,
             @Param("endTime")   LocalTime endTime,
             @Param("eventId")   Long eventId);
+
+
+    @Query("""
+    SELECT e FROM Event e
+    WHERE e.venue = :venue
+      AND e.eventDate = :eventDate
+      AND e.status = com.Java.EMS.entity.Event.EventStatus.PENDING
+      AND e.startTime < :endTime
+      AND e.endTime   > :startTime
+      AND e.eventId  <> :excludeId
+""")
+    List<Event> findClashingPendingEvents(
+            @Param("venue")     Venue venue,
+            @Param("eventDate") LocalDate eventDate,
+            @Param("startTime") LocalTime startTime,
+            @Param("endTime")   LocalTime endTime,
+            @Param("excludeId") Long excludeId);
 }
 

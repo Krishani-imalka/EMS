@@ -14,18 +14,13 @@ body {
     background: white;
     padding: 20px;
     border-radius: 12px;
-    /*box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);*/
     display: flex;
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     font-weight: 500;
 }
-
-.stat-card h4 {
-    font-weight: bold;
-    margin: 0;
-}
+.stat-card h4 { font-weight: bold; margin: 0; }
 
 /* Table Card */
 .card {
@@ -34,48 +29,166 @@ body {
     overflow: hidden;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
-
 .card-header {
     background: transparent;
     font-weight: 600;
     padding: 15px 20px;
-
 }
 
 /* Table */
-.table {
-    margin: 0;
-}
-
+.table { margin: 0; }
 .table th {
     font-size: 12px;
     color: #6c757d;
     letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+.table td { vertical-align: middle; }
+
+.td-num {
+    color: #9ca3af;
+    font-size: 13px;
+    width: 40px;
 }
 
-.table td {
-    vertical-align: middle;
-}
-
+/* Status badges */
 .status-badge {
     padding: 5px 12px;
     border-radius: 20px;
     font-size: 12px;
+    font-weight: 600;
+}
+.pending  { background: #fef9c3; color: #854d0e; }
+.approved { background: #dcfce7; color: #15803d; }
+.rejected { background: #fee2e2; color: #991b1b; }
+
+/* View button */
+.view-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid #bfdbfe;
+    background: #eff6ff;
+    color: #2563eb;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.view-btn:hover {
+    background: #2563eb;
+    color: white;
+    border-color: #2563eb;
+}
+
+/* ── Modal overlay — CENTERED ── */
+.ev-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    /* KEY: flex centering */
+    justify-content: center;
+    align-items: center;
+}
+.ev-overlay.active { display: flex; }
+
+/* Modal box */
+.ev-box {
+    background: #fff;
+    border-radius: 20px;
+    width: 600px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.25);
+    animation: popIn 0.25s ease;
+}
+@keyframes popIn {
+    from { opacity: 0; transform: scale(0.92); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+/* Modal header */
+.ev-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 24px 28px 18px;
+    border-bottom: 1px solid #f0f4f8;
+    background: linear-gradient(135deg, #f0f6ff, #f8faff);
+    border-radius: 20px 20px 0 0;
+}
+.ev-subtitle {
+    font-size: 10px;
+    font-weight: 700;
+    color: #94a3b8;
+    letter-spacing: 1.5px;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+}
+.ev-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1e3a5f;
+}
+.ev-close {
+    background: #e2e8f0;
+    border: none;
+    border-radius: 8px;
+    width: 34px;
+    height: 34px;
+    font-size: 1rem;
+    cursor: pointer;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+    flex-shrink: 0;
+}
+.ev-close:hover { background: #cbd5e1; color: #1e293b; }
+
+/* Modal body */
+.ev-body {
+    padding: 24px 28px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Two-column row */
+.ev-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* Single field */
+.ev-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.ev-full { grid-column: 1 / -1; }
+
+.ev-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+.ev-val {
+    font-size: 14px;
     font-weight: 500;
+    color: #1e293b;
+    background: #f8faff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 10px 14px;
+    min-height: 40px;
+    line-height: 1.5;
 }
-
-.pending {
-    background: #ffeeba;
-    color: #856404;}
-
-.approved {
-    background: #c3f0ca;
-    color: #155724;
-}
-
-.rejected {
-    background: #f8caca;
-    color: #721c24;
-}
-
-_

@@ -1,32 +1,453 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <link rel="stylesheet" href="/CSS/Header.css"/>
-    <link rel="stylesheet" href="/CSS/Organizer_AllEvent.css">
+  <link rel="stylesheet" href="/CSS/Header.css"/>
+  <link rel="stylesheet" href="/CSS/Organizer_AllEvent.css">
 </head>
 
 <body>
 <div th:replace="~{Fragments/Header :: header('My Events')}"></div>
-    <div class="toolbar">
-        <div class="search-wrap">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8" />
-                <path d="m21 21-4.35-4.35" />
-            </svg>
-            <input class="search-input" type="text" id="searchInput" placeholder="Search my events...">
-        </div>
-        <select class="status-select" id="statusFilter">
-            <option value="all">All Status</option>
-            <option value="pending">Pending</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
-        </select>
+
+<!-- Flash messages -->
+<div th:if="${successMessage}" class="flash flash-success" th:text="${successMessage}"></div>
+<div th:if="${errorMessage}"   class="flash flash-error"   th:text="${errorMessage}"></div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     TOOLBAR
+════════════════════════════════════════════════════════════ -->
+<div class="toolbar">
+  <div class="search-wrap">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/>
+      <path d="m21 21-4.35-4.35"/>
+    </svg>
+    <input class="search-input" type="text" id="searchInput" placeholder="Search my events...">
+  </div>
+  <select class="status-select" id="statusFilter">
+    <option value="all">All Status</option>
+    <option value="pending">Pending</option>
+    <option value="approved">Approved</option>
+    <option value="rejected">Rejected</option>
+  </select>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CARDS GRID
+════════════════════════════════════════════════════════════ -->
+<div class="grid" id="eventsGrid">
+
+  <div th:if="${#lists.isEmpty(events)}" class="no-results">
+    No events found. <a th:href="@{/organizer/createEvent}">Create one?</a>
+  </div>
+
+  <div th:each="event : ${events}"
+       class="card"
+       th:attr="data-title=${event.eventName},
+                data-status=${#strings.toLowerCase(event.status)}">
+
+    <!-- Banner -->
+    <div class="card-banner"
+         th:style="${event.bannerImage != null and event.bannerImage != ''}
+                ? 'background-image: url(/uploads/banners/' + ${#uris.escapePath(event.bannerImage)} + ');'
+                : ''">
+
+      <!-- Show SVG icon only when NO image -->
+      <svg th:if="${event.bannerImage == null or event.bannerImage == ''}"
+           width="28" height="28" viewBox="0 0 24 24"
+           fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"
+           style="margin-bottom:6px">
+        <rect x="3" y="4" width="18" height="18" rx="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+
+      <!-- Show category text only when NO image -->
+      <span th:if="${event.bannerImage == null or event.bannerImage == ''}"
+            th:text="${event.category}">CATEGORY</span>
+
     </div>
 
-    <div class="grid" id="eventsGrid"></div>
+    <!-- Body -->
+    <div class="card-body">
+      <div class="card-meta">
+        <span class="badge"
+              th:classappend="${event.status.name() == 'APPROVED'} ? 'approved' :
+                              (${event.status.name() == 'REJECTED'}  ? 'rejected' : 'pending')"
+              th:text="${event.status}"></span>
+        <span class="attendees" th:text="${event.expectedAttendees} + ' attendees'"></span>
+      </div>
 
+      <div class="card-title" th:text="${event.eventName}">Event Name</div>
+
+      <div class="card-info">
+        <div class="info-row">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          <span th:text="${#temporals.format(event.eventDate,'MMM dd, yyyy')} + ' • ' + ${#temporals.format(event.startTime,'hh:mm a')}"></span>
+        </div>
+        <div class="info-row">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          <span th:text="${event.location}">Location</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="card-actions">
+
+        <!-- VIEW button — stores all data in data-* attributes -->
+        <button class="btn btn-view"
+                th:attr="
+                  data-id=${event.eventId},
+                  data-name=${event.eventName},
+                  data-category=${event.category},
+                  data-status=${event.status},
+                  data-date=${#temporals.format(event.eventDate,'MMM dd, yyyy')},
+                  data-start=${#temporals.format(event.startTime,'hh:mm a')},
+                  data-end=${#temporals.format(event.endTime,'hh:mm a')},
+                  data-location=${event.location},
+                  data-attendees=${event.expectedAttendees},
+                  data-contact=${event.contactInfo},
+                  data-desc=${event.description},
+                  data-venue=${event.venue != null ? event.venue.vName : 'N/A'},
+                  data-remarks=${event.adminRemarks != null ? event.adminRemarks : ''}"
+                onclick="openViewModal(this)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          View
+        </button>
+
+        <!-- EDIT button (PENDING only) -->
+        <button th:if="${event.status.name() == 'PENDING'}"
+                class="btn btn-edit"
+                th:attr="
+          data-id=${event.eventId},
+          data-name=${event.eventName},
+          data-desc=${event.description},
+          data-date=${event.eventDate},
+          data-start=${#temporals.format(event.startTime,'HH:mm')},
+          data-end=${#temporals.format(event.endTime,'HH:mm')},
+          data-location=${event.location},
+          data-attendees=${event.expectedAttendees},
+          data-contact=${event.contactInfo},
+          data-category=${event.category},
+          data-venue=${event.venue != null ? event.venue.vName : ''}"
+                onclick="openEditModal(this)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+          Edit
+        </button>
+        <span th:if="${event.status.name() != 'PENDING'}"
+              class="btn btn-edit btn-disabled" title="Cannot edit after review">Edit</span>
+
+        <!-- DELETE button -->
+        <button class="btn btn-delete"
+                th:attr="data-id=${event.eventId}, data-name=${event.eventName}"
+                onclick="openDeleteModal(this)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+            <path d="M10 11v6M14 11v6"/>
+            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 0 1 1v2"/>
+          </svg>
+          Delete
+        </button>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     VIEW MODAL
+════════════════════════════════════════════════════════════ -->
+<div id="viewModal" class="modal-overlay" onclick="closeModal('viewModal')">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <span id="vm-category" class="modal-category-tag"></span>
+        <h2 id="vm-name" class="modal-title"></h2>
+      </div>
+      <button class="modal-close" onclick="closeModal('viewModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-status-row">
+        <span id="vm-status" class="badge"></span>
+        <span id="vm-attendees" class="attendees"></span>
+      </div>
+      <div class="modal-details">
+        <div class="detail-row">
+          <span class="detail-label">📅 Date</span>
+          <span id="vm-date" class="detail-value"></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">⏰ Time</span>
+          <span id="vm-time" class="detail-value"></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">📍 Location</span>
+          <span id="vm-location" class="detail-value"></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">🏛 Venue</span>
+          <span id="vm-venue" class="detail-value"></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">📞 Contact</span>
+          <span id="vm-contact" class="detail-value"></span>
+        </div>
+      </div>
+      <div class="modal-desc-section">
+        <p class="detail-label">About this event</p>
+        <p id="vm-desc" class="modal-desc-text"></p>
+      </div>
+      <div id="vm-remarks-section" class="modal-remarks" style="display:none">
+        <p class="detail-label">Admin Remarks</p>
+        <p id="vm-remarks"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     EDIT MODAL
+════════════════════════════════════════════════════════════ -->
+<div id="editModal" class="modal-overlay" onclick="closeModal('editModal')">
+  <div class="modal-box modal-box-lg" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">Edit Event</h2>
+      <button class="modal-close" onclick="closeModal('editModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="editForm" method="post" enctype="multipart/form-data">
+        <!-- CSRF token for Spring Security -->
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf != null}"/>
+
+        <div class="form-grid">
+          <div class="form-group form-full">
+            <label>Event Name</label>
+            <input type="text" name="eventName" id="edit-name" class="form-input" required/>
+          </div>
+          <div class="form-group form-full">
+            <label>Description</label>
+            <textarea name="description" id="edit-desc" class="form-input form-textarea" required></textarea>
+          </div>
+          <div class="form-group">
+            <label>Event Date</label>
+            <input type="date" name="eventDate" id="edit-date" class="form-input" required/>
+          </div>
+          <div class="form-group">
+            <label>Start Time</label>
+            <input type="time" name="startTime" id="edit-start" class="form-input" required/>
+          </div>
+          <div class="form-group">
+            <label>End Time</label>
+            <input type="time" name="endTime" id="edit-end" class="form-input" required/>
+          </div>
+          <div class="form-group">
+            <label>Location</label>
+            <input type="text" name="location" id="edit-location" class="form-input" required/>
+          </div>
+          <div class="form-group">
+            <label>Expected Attendees</label>
+            <input type="number" name="expectedAttendees" id="edit-attendees" class="form-input" min="1" required/>
+          </div>
+          <div class="form-group">
+            <label>Contact Info</label>
+            <input type="text" name="contactInfo" id="edit-contact" class="form-input" required/>
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <select name="category" id="edit-category" class="form-input">
+              <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}"></option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Venue</label>
+            <select name="venueName" id="edit-venue" class="form-input">
+              <option value="">-- No specific venue --</option>
+              <option th:each="v : ${venues}" th:value="${v.vName}" th:text="${v.vName}"></option>
+            </select>
+          </div>
+          <div class="form-group form-full">
+            <label>Banner Image <span style="color:#94a3b8;font-size:12px">(leave empty to keep current)</span></label>
+            <input type="file" name="bannerImage" class="form-input" accept="image/*"/>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-cancel" onclick="closeModal('editModal')">Cancel</button>
+          <button type="submit" class="btn btn-save">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+              <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+            </svg>
+            Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     DELETE CONFIRMATION MODAL
+════════════════════════════════════════════════════════════ -->
+<div id="deleteModal" class="modal-overlay" onclick="closeModal('deleteModal')">
+  <div class="modal-box modal-box-sm" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">Delete Event</h2>
+      <button class="modal-close" onclick="closeModal('deleteModal')">✕</button>
+    </div>
+    <div class="modal-body" style="text-align:center; padding: 24px 28px;">
+      <div style="font-size:48px; margin-bottom:16px;">🗑️</div>
+      <p style="font-size:15px; color:#374151; margin-bottom:8px;">
+        Are you sure you want to delete
+      </p>
+      <p id="dm-name" style="font-size:16px; font-weight:700; color:#0f172a; margin-bottom:20px;"></p>
+      <p style="font-size:13px; color:#94a3b8; margin-bottom:28px;">
+        This action cannot be undone.
+      </p>
+      <form id="deleteForm" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf != null}"/>
+        <div style="display:flex; gap:12px; justify-content:center;">
+          <button type="button" class="btn btn-cancel" onclick="closeModal('deleteModal')">Cancel</button>
+          <button type="submit" class="btn btn-delete-confirm">Yes, Delete</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════════════════ -->
+<script>
+
+  /* ── Search + Filter ────────────────────────────────────── */
+  const searchInput  = document.getElementById('searchInput');
+  const statusFilter = document.getElementById('statusFilter');
+
+  function filterCards() {
+    const q      = searchInput.value.toLowerCase();
+    const status = statusFilter.value;
+    document.querySelectorAll('.card').forEach(card => {
+      const matchQ = card.dataset.title.toLowerCase().includes(q);
+      const matchS = status === 'all' || card.dataset.status === status;
+      card.style.display = (matchQ && matchS) ? '' : 'none';
+    });
+  }
+  searchInput.addEventListener('input',   filterCards);
+  statusFilter.addEventListener('change', filterCards);
+
+
+  /* ── Modal helpers ──────────────────────────────────────── */
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('modal-open');
+    document.body.style.overflow = '';
+  }
+  function openModal(id) {
+    document.getElementById(id).classList.add('modal-open');
+    document.body.style.overflow = 'hidden';
+  }
+
+
+  /* ── VIEW modal ─────────────────────────────────────────── */
+  function openViewModal(btn) {
+    const d = btn.dataset;
+
+    document.getElementById('vm-name').textContent      = d.name;
+    document.getElementById('vm-date').textContent      = d.date;
+    document.getElementById('vm-time').textContent      = d.start + ' – ' + d.end;
+    document.getElementById('vm-location').textContent  = d.location;
+    document.getElementById('vm-venue').textContent     = d.venue || 'N/A';
+    document.getElementById('vm-attendees').textContent = d.attendees + ' attendees';
+    document.getElementById('vm-contact').textContent   = d.contact || '—';
+    document.getElementById('vm-desc').textContent      = d.desc    || '—';
+
+    // category tag
+    const catTag = document.getElementById('vm-category');
+    catTag.textContent  = d.category;
+    catTag.className    = 'modal-category-tag cat-' + d.category.toLowerCase();
+
+    // status badge
+    const badge = document.getElementById('vm-status');
+    badge.textContent = d.status;
+    badge.className   = 'badge ' + d.status.toLowerCase();
+
+    // admin remarks (only show if present)
+    const remarksSection = document.getElementById('vm-remarks-section');
+    if (d.remarks && d.remarks.trim() !== '') {
+      document.getElementById('vm-remarks').textContent = d.remarks;
+      remarksSection.style.display = 'block';
+    } else {
+      remarksSection.style.display = 'none';
+    }
+
+    openModal('viewModal');
+  }
+
+
+  /* ── EDIT modal ─────────────────────────────────────────── */
+  function openEditModal(btn) {
+    const d = btn.dataset;
+
+    // Set form action dynamically
+    document.getElementById('editForm').action = '/organizer/editEvent/' + d.id;
+
+    // Pre-fill all fields
+    document.getElementById('edit-name').value      = d.name;
+    document.getElementById('edit-desc').value      = d.desc;
+    document.getElementById('edit-date').value      = d.date;   // ISO format yyyy-MM-dd
+    document.getElementById('edit-start').value     = d.start;  // HH:mm
+    document.getElementById('edit-end').value       = d.end;
+    document.getElementById('edit-location').value  = d.location;
+    document.getElementById('edit-attendees').value = d.attendees;
+    document.getElementById('edit-contact').value   = d.contact;
+
+    // Select category
+    const catSelect = document.getElementById('edit-category');
+    for (let opt of catSelect.options) {
+      opt.selected = (opt.value === d.category);
+    }
+
+    // Select venue
+    const venueSelect = document.getElementById('edit-venue');
+    for (let opt of venueSelect.options) {
+      opt.selected = (opt.value === d.venue);
+    }
+
+    openModal('editModal');
+  }
+
+
+  /* ── DELETE modal ───────────────────────────────────────── */
+  function openDeleteModal(btn) {
+    document.getElementById('dm-name').textContent   = '"' + btn.dataset.name + '"';
+    document.getElementById('deleteForm').action     = '/organizer/deleteEvent/' + btn.dataset.id;
+    openModal('deleteModal');
+  }
+
+  /* ── Close on Escape key ────────────────────────────────── */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      ['viewModal','editModal','deleteModal'].forEach(closeModal);
+    }
+  });
+
+</script>
 </body>
-
-
 </html>

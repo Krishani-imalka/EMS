@@ -22,7 +22,7 @@ public class Event_Registation {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "registration_status", nullable = false)
-    private RegistrationStatus registrationStatus = RegistrationStatus.REGISTERED;
+    private RegistrationStatus registrationStatus = RegistrationStatus.PENDING;;
 
     @Column(name = "registered_at", nullable = false, updatable = false)
     private LocalDateTime registeredAt;
@@ -84,6 +84,6 @@ public class Event_Registation {
     }
 
     public enum RegistrationStatus {
-        REGISTERED, CANCELLED, ATTENDED
+        REGISTERED, CANCELLED, PENDING
     }
 }

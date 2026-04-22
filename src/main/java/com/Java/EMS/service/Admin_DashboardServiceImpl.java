@@ -1,6 +1,8 @@
 package com.Java.EMS.service;
 
 import com.Java.EMS.entity.Event;
+import com.Java.EMS.entity.Event_Registation;
+import com.Java.EMS.repository.Event_RegisterRepository;
 import com.Java.EMS.entity.User;
 import com.Java.EMS.repository.Admin_DashboardRepository;
 import com.Java.EMS.repository.EventRepository;
@@ -22,6 +24,36 @@ public class Admin_DashboardServiceImpl implements Admin_DashboardService {
                                       UserRepository userRepository) {
         this.eventRepository = eventRepository;
         this.userRepository  = userRepository;
+    }
+
+    @Autowired
+    private Event_RegisterRepository eventRegistrationRepository;
+
+    @Override
+    public List<Event_Registation> getRecentEventRegistrations() {
+        return eventRegistrationRepository
+                .findTop10ByRegistrationStatusOrderByRegisteredAtDesc(
+                        Event_Registation.RegistrationStatus.PENDING);
+    }
+
+    @Override
+    public void updateRegistrationStatus(Long registrationId, Event_Registation.RegistrationStatus status) {
+        Event_Registation reg = eventRegistrationRepository.findById(registrationId)
+                .orElseThrow(() -> new RuntimeException("Registration not found: " + registrationId));
+
+        // If admin is approving a PENDING registration → expand capacity by 1
+        if (status == Event_Registation.RegistrationStatus.REGISTERED
+                && reg.getRegistrationStatus() == Event_Registation.RegistrationStatus.PENDING) {
+
+            Event event = reg.getEvent();
+            if (event.getExpectedAttendees() != null) {
+                event.setExpectedAttendees(event.getExpectedAttendees() + 1);
+                eventRepository.save(event);
+            }
+        }
+
+        reg.setRegistrationStatus(status);
+        eventRegistrationRepository.save(reg);
     }
 
     @Override

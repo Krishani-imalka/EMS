@@ -256,6 +256,9 @@ nav a.active {
 
 .card-banner {
   background: linear-gradient(135deg, #1e2d4d 0%, #2a4070 100%);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   height: 130px;
   display: flex;
   flex-direction: column;

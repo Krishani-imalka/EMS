@@ -1,7 +1,5 @@
 package com.Java.EMS.controller;
 
-import com.Java.EMS.service.Student_DashboardService;
-import com.Java.EMS.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +21,11 @@ public class HomeController {
     @Autowired
     private Organizer_DashboardController organizerDashboardController;
 
+
+    @GetMapping("/")
+    public String loginPage() {
+        return "Fragments/Login_page";
+    }
 
     @GetMapping("/admin")
     public String sidebar() {

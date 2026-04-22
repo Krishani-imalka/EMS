@@ -247,7 +247,15 @@
           th:data-name="${event.eventName}">
 
         <td class="td-num"  th:text="${stat.index + 1}"></td>
-        <td class="td-name" th:text="${event.eventName}"></td>
+
+        <td class="td-name">
+          <span th:text="${event.eventName}"></span>
+          <span th:if="${clashingIds != null and clashingIds.contains(event.eventId)}"
+                class="clash-badge">
+                   ⚠ Venue Clash
+          </span>
+        </td>
+
         <td class="td-org"  th:text="${event.organizer.fullName}"></td>
         <td class="td-date" th:text="${event.eventDate}"></td>
         <td class="td-loc"  th:text="${event.location}"></td>

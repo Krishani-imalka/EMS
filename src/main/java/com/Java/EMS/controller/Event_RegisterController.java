@@ -25,16 +25,19 @@ public class Event_RegisterController {
     // Load registration page with approved events in dropdown
     @GetMapping("/register-page")
     public String showRegistrationPage(Model model, HttpSession session) {
-        List<Event> events = registrationService.getApprovedEvents();
-        model.addAttribute("events", events);
+        model.addAttribute("events", registrationService.getApprovedEvents());
+        model.addAttribute("departments", registrationService.getDistinctDepartments());
 
-        // Get logged user from session
-        String username = (String) session.getAttribute("username");
-
+        String username = (String) session.getAttribute("loggedInUsername");
         if (username != null) {
+            try{
             User loggedInUser = registrationService.getLoggedInUser(username);
             model.addAttribute("loggedInUser", loggedInUser);
+           }
+            catch (Exception e) {
+
         }
+    }
         return "Event_Register";
     }
 
@@ -43,16 +46,32 @@ public class Event_RegisterController {
     @ResponseBody
     public ResponseEntity<?> registerForEvent(
             @RequestParam Long eventId,
+            @RequestParam String userId,
             @RequestParam String department,
             @RequestParam String year,
+            @RequestParam(required = false) String notes,
             HttpSession session) {
         try {
-            String username = (String) session.getAttribute("username");
-            Event_Registation saved = registrationService.registerStudentForEvent(eventId, username);
+            String username = (String) session.getAttribute("loggedInUsername");
+
+            if (username == null) {
+                return ResponseEntity.status(401).body(Map.of(
+                        "success", false,
+                        "message", "Session expired. Please log in again."
+                ));
+            }
+
+            Event_Registation saved = registrationService.registerStudentForEvent(eventId, userId, username);
+
+            String message = saved.getRegistrationStatus() == Event_Registation.RegistrationStatus.REGISTERED
+                    ? "You have successfully registered for the event!"
+                    : "You are on the waitlist. Registration is pending as the event is currently full.";
+
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "registrationId", saved.getRegistrationId(),
-                    "message", "You have successfully registered for the event!"
+                    "status", saved.getRegistrationStatus().name(),
+                    "message", message
             ));
         } catch (IllegalArgumentException | IllegalStateException ex) {
             return ResponseEntity.badRequest().body(Map.of(

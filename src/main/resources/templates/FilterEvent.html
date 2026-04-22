@@ -104,13 +104,20 @@
 
       <!-- Event Cards -->
       <div th:each="e : ${events}" class="event-card">
-        <div class="card-banner">
-          <svg width="28" height="28" fill="none" stroke="currentColor"
+        <div class="card-banner"
+             th:style="${e.bannerImage != null and e.bannerImage != ''}
+              ? 'background-image: url(/uploads/banners/' + ${e.bannerImage} + '); background-size: cover; background-position: center;'
+              : ''">
+
+          <svg th:if="${e.bannerImage == null or e.bannerImage == ''}"
+               width="28" height="28" fill="none" stroke="currentColor"
                stroke-width="1.5" viewBox="0 0 24 24">
             <rect x="3" y="4" width="18" height="18" rx="2"/>
             <path d="M16 2v4M8 2v4M3 10h18"/>
           </svg>
-          <span th:text="${e.category}">Category</span>
+
+          <span th:if="${e.bannerImage == null or e.bannerImage == ''}"
+                th:text="${e.category}">Category</span>
         </div>
         <div class="card-body">
             <span class="badge"

@@ -26,6 +26,9 @@ import java.util.UUID;
 @Service
 public class EventService {
     @Autowired
+    private NotificationService notificationService;
+
+    @Autowired
     private EventRepository eventRepository;
 
     @Autowired
@@ -63,6 +66,30 @@ public class EventService {
             event.setAdminRemarks(adminRemarks);
         }
         eventRepository.save(event);
+
+
+        // ── Send notification to the event organizer ──────────────────────
+        User organizer = event.getOrganizer();
+        String message;
+
+        if (newStatus == Event.EventStatus.APPROVED) {
+            message = "Your event \"" + event.getEventName() + "\" has been APPROVED.";
+            if (adminRemarks != null && !adminRemarks.isBlank()) {
+                message += " Remarks: " + adminRemarks;
+            }
+        } else if (newStatus == Event.EventStatus.REJECTED) {
+            message = "Your event \"" + event.getEventName() + "\" has been REJECTED.";
+            if (adminRemarks != null && !adminRemarks.isBlank()) {
+                message += " Reason: " + adminRemarks;
+            } else {
+                message += " No reason provided.";
+            }
+        } else {
+            message = "Your event \"" + event.getEventName() + "\" status changed to " + newStatus.name() + ".";
+        }
+
+        notificationService.sendNotification(organizer, event, message);
+
         return null; // null = success
     }
 
@@ -245,13 +272,107 @@ public class EventService {
         try {
             Path uploadPath = Paths.get(uploadDir);
             Files.createDirectories(uploadPath);
-            String fileName = UUID.randomUUID() + "_" + bannerImage.getOriginalFilename();
+
+            // ✅ Sanitize: replace spaces and special chars with underscores
+            String originalName = bannerImage.getOriginalFilename();
+            String sanitized = originalName
+                    .replaceAll("\\s+", "_")           // spaces → underscore
+                    .replaceAll("[^a-zA-Z0-9._\\-]", "_"); // other special chars → underscore
+
+            String fileName = UUID.randomUUID() + "_" + sanitized;
             Path filePath = uploadPath.resolve(fileName);
             Files.copy(bannerImage.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
             return fileName;
         } catch (IOException e) {
             return "ERROR: Failed to upload banner image: " + e.getMessage();
         }
+    }
+
+    public java.util.Set<Long> getClashingEventIds() {
+        List<Event> allEvents = eventRepository.findByStatus(Event.EventStatus.PENDING);
+        java.util.Set<Long> clashingIds = new java.util.HashSet<>();
+
+        for (Event event : allEvents) {
+            if (event.getVenue() == null) continue;
+            List<Event> clashes = eventRepository.findClashingPendingEvents(
+                    event.getVenue(),
+                    event.getEventDate(),
+                    event.getStartTime(),
+                    event.getEndTime(),
+                    event.getEventId()
+            );
+            if (!clashes.isEmpty()) {
+                clashingIds.add(event.getEventId());
+            }
+        }
+        return clashingIds;
+    }
+
+
+
+    // ─── Get events by organizer ──────────────────────────────────────────────
+    public List<Event> getEventsByOrganizer(String organizerUserId) {
+        return eventRepository.findByOrganizer_UserId(organizerUserId); // ✅ fixed
+    }
+
+    // ─── Get single event (ownership check) ──────────────────────────────────
+    public Event getEventByIdAndOrganizer(Long eventId, String organizerUserId) { // ✅ Long
+        return eventRepository.findByEventIdAndOrganizer_UserId(eventId, organizerUserId)
+                .orElse(null);
+    }
+
+    // ─── Delete event (organizer-scoped) ─────────────────────────────────────
+    public String deleteEvent(Long eventId, String organizerUserId) { // ✅ Long
+        Event event = eventRepository.findByEventIdAndOrganizer_UserId(eventId, organizerUserId)
+                .orElse(null);
+        if (event == null) return "Event not found or unauthorized.";
+        eventRepository.delete(event);
+        return null;
+    }
+
+    // ─── Update event (organizer-scoped) ─────────────────────────────────────
+    public String updateEvent(
+            Long eventId, String organizerUserId, // ✅ Long
+            String eventName, String description,
+            LocalDate eventDate, LocalTime startTime, LocalTime endTime,
+            String location, String venueName,
+            Event.EventCategory category, Integer expectedAttendees,
+            String contactInfo, MultipartFile bannerImage) {
+
+        Event event = eventRepository.findByEventIdAndOrganizer_UserId(eventId, organizerUserId)
+                .orElse(null);
+        if (event == null) return "Event not found or unauthorized.";
+
+        if (event.getStatus() != Event.EventStatus.PENDING) {
+            return "Only pending events can be edited.";
+        }
+
+        event.setEventName(eventName);
+        event.setDescription(description);
+        event.setEventDate(eventDate);
+        event.setStartTime(startTime);
+        event.setEndTime(endTime);
+        event.setLocation(location);
+
+        if (venueName != null && !venueName.isBlank()) {
+            Venue venue = venueRepository.findByVName(venueName).orElse(null);
+            event.setVenue(venue);
+        }
+
+        event.setCategory(category);
+        event.setExpectedAttendees(expectedAttendees);
+        event.setContactInfo(contactInfo);
+
+        if (bannerImage != null && !bannerImage.isEmpty()) {
+            String savedPath = saveBannerImage(bannerImage);
+            if (savedPath != null && savedPath.startsWith("ERROR:")) {
+                return savedPath.substring(6);
+            }
+            event.setBannerImage(savedPath);
+        }
+
+        eventRepository.save(event);
+        return null;
     }
 
 }

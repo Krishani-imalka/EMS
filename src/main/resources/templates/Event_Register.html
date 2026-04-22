@@ -51,16 +51,35 @@
 
       <hr class="divider"/>
 
+      <!-- User ID Verification -->
+      <div class="form-row">
+        <label class="form-label" for="userIdInput">
+          User ID <span class="req">*</span>
+          <span class="opt"> — must match your account</span>
+        </label>
+        <div style="position:relative;">
+          <input type="text"
+                 id="userIdInput"
+                 maxlength="10"
+                 placeholder="Enter your User ID to verify"
+                 autocomplete="off"/>
+          <!-- shield icon on the right -->
+          <svg style="position:absolute;right:12px;top:50%;transform:translateY(-50%);
+                      width:16px;height:16px;color:#9ca3af;pointer-events:none;"
+               viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+      </div>
+
+      <hr class="divider"/>
+
       <!-- Pre-filled read-only fields from logged-in user -->
       <div class="grid-2">
         <div class="form-row">
           <label class="form-label">Full Name</label>
-          <!--
-            IMPORTANT: Replace 'name' below with the exact field name
-            in your User entity e.g. fullName, userName, etc.
-          -->
           <input type="text"
-                 th:value="${loggedInUser != null ? loggedInUser.fullname : ''}"
+                 th:value="${loggedInUser != null ? loggedInUser.fullName : ''}"
                  readonly
                  style="background:#f9fafb; color:#6b7280; cursor:not-allowed;"/>
         </div>
@@ -81,18 +100,11 @@
           </label>
           <select id="department">
             <option value="">— Select department —</option>
-            <option th:value="'Computer Science'"
-                    th:selected="${loggedInUser != null and loggedInUser.department == 'Computer Science'}">Computer Science</option>
-            <option th:value="'Information Technology'"
-                    th:selected="${loggedInUser != null and loggedInUser.department == 'Information Technology'}">Information Technology</option>
-            <option th:value="'Software Engineering'"
-                    th:selected="${loggedInUser != null and loggedInUser.department == 'Software Engineering'}">Software Engineering</option>
-            <option th:value="'Electrical Engineering'"
-                    th:selected="${loggedInUser != null and loggedInUser.department == 'Electrical Engineering'}">Electrical Engineering</option>
-            <option th:value="'Civil Engineering'"
-                    th:selected="${loggedInUser != null and loggedInUser.department == 'Civil Engineering'}">Civil Engineering</option>
-            <option th:value="'Other'"
-                    th:selected="${loggedInUser != null and loggedInUser.department == 'Other'}">Other</option>
+            <option th:each="dept : ${departments}"
+                    th:value="${dept}"
+                    th:text="${dept}"
+                    th:selected="${loggedInUser != null and loggedInUser.department == dept}">
+            </option>
           </select>
         </div>
         <div class="form-row">
@@ -129,26 +141,103 @@
 </div>
 
 <script>
+  const loggedInUserId = /*[[${loggedInUser != null ? loggedInUser.userId : ''}]]*/ '';
+
   function submitForm() {
     const eventId = document.getElementById('eventSelect').value;
+    const userId  = document.getElementById('userIdInput').value.trim();
     const dept    = document.getElementById('department').value;
     const year    = document.getElementById('year').value;
+    const notes   = document.getElementById('notes').value;
 
     if (!eventId) return showBanner('error', 'Please select an event.');
+    if (!userId)  return showBanner('error', 'Please enter your User ID.');
     if (!dept)    return showBanner('error', 'Please select your department.');
     if (!year)    return showBanner('error', 'Please select your year of study.');
+
+    if (loggedInUserId && userId !== loggedInUserId) {
+      return showBanner('error', 'User ID does not match your account. Please enter your own User ID.');
+    }
 
     fetch('/student/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ eventId, department: dept, year  }).toString()
+      body: new URLSearchParams({ eventId, userId, department: dept, year, notes }).toString()
     })
             .then(r => r.json())
             .then(data => {
-              if (data.success) { showBanner('success', data.message); resetForm(); }
-              else              { showBanner('error', data.message); }
+              if (data.success) {
+                showSuccessAlert(data.message);
+                resetForm();
+              } else {
+                showBanner('error', data.message);
+              }
             })
             .catch(() => showBanner('error', 'Network error. Please try again.'));
+  }
+
+  function showSuccessAlert(msg) {
+    // Remove any existing alert
+    const existing = document.getElementById('successAlert');
+    if (existing) existing.remove();
+
+    // Create alert element
+    const alert = document.createElement('div');
+    alert.id = 'successAlert';
+    alert.innerHTML = `
+      <div style="
+        position: fixed;
+        top: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 9999;
+        background: #f0fdf4;
+        border: 1.5px solid #22c55e;
+        border-radius: 12px;
+        padding: 18px 32px;
+        box-shadow: 0 8px 32px rgba(34,197,94,0.18);
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-width: 340px;
+        max-width: 90vw;
+        animation: slideDown 0.4s ease;
+      ">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+             stroke="#16a34a" stroke-width="2.5" style="flex-shrink:0;">
+          <circle cx="12" cy="12" r="10" fill="#dcfce7" stroke="#16a34a"/>
+          <polyline points="9 12 11 14 15 10" stroke="#16a34a"/>
+        </svg>
+        <div>
+          <div style="font-weight:700; color:#15803d; font-size:1rem;">Registration Successful!</div>
+          <div style="color:#166534; font-size:0.92rem; margin-top:2px;">${msg}</div>
+          <div style="color:#4ade80; font-size:0.82rem; margin-top:4px;">Status: <b>Pending</b> — awaiting confirmation.</div>
+        </div>
+        <button onclick="document.getElementById('successAlert').remove()"
+                style="margin-left:auto; background:none; border:none; cursor:pointer;
+                       color:#16a34a; font-size:1.3rem; line-height:1; padding:0 4px;">✕</button>
+      </div>
+      <style>
+        @keyframes slideDown {
+          from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+          to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+      </style>
+    `;
+
+    document.body.appendChild(alert);
+
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+      const el = document.getElementById('successAlert');
+      if (el) {
+        el.style.transition = 'opacity 0.5s';
+        el.style.opacity = '0';
+        setTimeout(() => el.remove(), 500);
+      }
+    }, 5000);
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function showBanner(type, msg) {
@@ -166,6 +255,7 @@
 
   function resetForm() {
     document.getElementById('eventSelect').value = '';
+    document.getElementById('userIdInput').value = '';
     document.getElementById('department').value  = '';
     document.getElementById('year').value        = '';
     document.getElementById('notes').value       = '';
