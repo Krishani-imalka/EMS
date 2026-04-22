@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <link rel="stylesheet" href="/CSS/Header.css"/>
+    <link rel="stylesheet" href="/CSS/Participants.css"/>
+</head>
+
+<body>
+
+<div th:replace="~{Fragments/Header :: header('Event Participants')}"></div>
+
+<div class="ep-wrapper">
+
+    <!-- Page Header -->
+    <div class="ep-page-header">
+        <div>
+            <h1 class="ep-title">Event Participants</h1>
+            <p class="ep-subtitle">View all students registered for your events</p>
+        </div>
+
+        <!-- Event Filter Dropdown -->
+        <form method="get" th:action="@{/organizer/participants}" class="ep-filter-form">
+            <select name="eventId" class="ep-select" onchange="this.form.submit()">
+                <option value="">— All Events —</option>
+                <option th:each="event : ${organizerEvents}"
+                        th:value="${event.eventId}"
+                        th:text="${event.eventName}"
+                        th:selected="${selectedEventId != null and selectedEventId == event.eventId}">
+                </option>
+            </select>
+        </form>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="ep-stats">
+
+        <div class="ep-stat-card">
+            <div class="ep-stat-icon blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+            </div>
+            <div>
+                <div class="ep-stat-label">Total Registrations</div>
+                <div class="ep-stat-value" th:text="${totalCount}">0</div>
+            </div>
+        </div>
+
+        <div class="ep-stat-card">
+            <div class="ep-stat-icon green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+            </div>
+            <div>
+                <div class="ep-stat-label">Registered</div>
+                <div class="ep-stat-value" th:text="${registeredCount}">0</div>
+            </div>
+        </div>
+
+        <div class="ep-stat-card">
+            <div class="ep-stat-icon yellow">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                </svg>
+            </div>
+            <div>
+                <div class="ep-stat-label">Pending</div>
+                <div class="ep-stat-value" th:text="${pendingCount}">0</div>
+            </div>
+        </div>
+
+        <div class="ep-stat-card">
+            <div class="ep-stat-icon red">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="15" y1="9" x2="9" y2="15"/>
+                    <line x1="9" y1="9" x2="15" y2="15"/>
+                </svg>
+            </div>
+            <div>
+                <div class="ep-stat-label">Cancelled</div>
+                <div class="ep-stat-value" th:text="${cancelledCount}">0</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Participants Table -->
+    <div class="ep-card">
+        <table class="ep-table">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Student</th>
+                <th>User ID</th>
+                <th>Department</th>
+                <th>Event</th>
+                <th>Registered At</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="reg, iter : ${participants}">
+                <td class="ep-index" th:text="${iter.count}">1</td>
+
+                <td>
+                    <div class="ep-student-name" th:text="${reg.student.fullName}">Name</div>
+                    <div class="ep-student-email" th:text="${reg.student.email}">email</div>
+                </td>
+
+                <td>
+                    <span class="ep-userid" th:text="${reg.student.userId}">ID</span>
+                </td>
+
+                <td th:text="${reg.student.department != null ? reg.student.department : '—'}">Dept</td>
+
+                <td>
+                    <div class="ep-event-name" th:text="${reg.event.eventName}">Event</div>
+                    <div class="ep-event-date"
+                         th:text="${#temporals.format(reg.event.eventDate, 'MMM dd, yyyy')}">Date</div>
+                </td>
+
+                <td th:text="${#temporals.format(reg.registeredAt, 'MMM dd, yyyy HH:mm')}">Date</td>
+
+                <td>
+            <span th:text="${reg.registrationStatus}"
+                  th:class="${reg.registrationStatus.name() == 'REGISTERED'} ? 'ep-badge ep-badge-registered'
+                           : (${reg.registrationStatus.name() == 'PENDING'} ? 'ep-badge ep-badge-pending'
+                           : 'ep-badge ep-badge-cancelled')">
+            </span>
+                </td>
+            </tr>
+
+            <tr th:if="${#lists.isEmpty(participants)}">
+                <td colspan="7" class="ep-empty">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
+                         stroke="#d1d5db" stroke-width="1.5">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                    </svg>
+                    <p>No participants found for the selected event.</p>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+</body>
+</html>
