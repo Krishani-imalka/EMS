@@ -112,6 +112,51 @@
     </div>
   </div>
 
+  <!-- My Registered Events -->
+  <div th:if="${myRegistrations != null and not #lists.isEmpty(myRegistrations)}">
+    <div class="section-title">My Registered Events</div>
+    <div class="schedule-list">
+      <div th:each="reg : ${myRegistrations}" class="schedule-item"
+           style="align-items:flex-start; gap:16px; padding:14px 18px;">
+
+        <!-- Date Chip -->
+        <div class="date-chip">
+        <span class="month"
+              th:text="${#temporals.format(reg.event.eventDate, 'MMM')}">Mon</span>
+          <span class="day"
+                th:text="${#temporals.format(reg.event.eventDate, 'dd')}">01</span>
+        </div>
+
+        <!-- Event Info -->
+        <div class="schedule-info" style="flex:1;">
+          <div class="s-title" th:text="${reg.event.eventName}">Event Name</div>
+          <div class="s-loc"   th:text="'@ ' + ${reg.event.location}">Location</div>
+          <div style="font-size:0.78rem; color:#6b7280; margin-top:4px;">
+            <span th:text="${#temporals.format(reg.event.startTime, 'hh:mm a')}"></span>
+            —
+            <span th:text="${#temporals.format(reg.event.endTime, 'hh:mm a')}"></span>
+            &bull;
+            Registered:
+            <span th:text="${#temporals.format(reg.registeredAt, 'MMM dd, yyyy')}"></span>
+          </div>
+        </div>
+
+        <!-- Status Badge -->
+        <div style="display:flex; align-items:center; padding-top:4px;">
+        <span th:text="${reg.registrationStatus}"
+              th:classappend="${reg.registrationStatus.name() == 'REGISTERED'} ? 'badge-registered'
+                            : (${reg.registrationStatus.name() == 'PENDING'} ? 'badge-pending'
+                            : 'badge-cancelled')"
+              style="font-size:0.75rem; font-weight:600; padding:4px 12px;
+                     border-radius:999px; text-transform:uppercase;">
+        </span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
 </div><!-- end home-body -->
 
 </body>

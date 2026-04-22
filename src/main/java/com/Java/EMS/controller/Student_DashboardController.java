@@ -2,6 +2,7 @@ package com.Java.EMS.controller;
 
 import com.Java.EMS.entity.Event;
 import com.Java.EMS.service.Student_DashboardService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,7 +23,7 @@ public class Student_DashboardController {
     @GetMapping("/dashboard")
     public String dashboard(
             @RequestParam(required = false) String search,
-            Model model) {
+            Model model, HttpSession session) {
 
         List<Event> featuredEvents;
         List<Event> scheduleEvents;
@@ -48,6 +49,17 @@ public class Student_DashboardController {
         model.addAttribute("featuredEvents", featuredEvents);
         model.addAttribute("scheduleEvents", scheduleEvents);
         model.addAttribute("search", search);
+
+        // Add logged-in user's registrations
+        String username = (String) session.getAttribute("loggedInUsername");
+        if (username != null) {
+            try {
+                model.addAttribute("myRegistrations",
+                        studentDashboardService.getMyRegistrations(username));
+            } catch (Exception e) {
+                model.addAttribute("myRegistrations", List.of());
+            }
+        }
 
         return "Student_Dashboard";
     }
