@@ -36,6 +36,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     Optional<Event> findByEventIdAndOrganizer_UserId(Long eventId, String organizerUserId);
     List<Event> findByOrganizer_UserIdAndStatus(String organizerUserId, Event.EventStatus status);
 
+    List<Event> findByOrganizerOrderByEventDateDesc(User organizer);
 
     @Query("SELECT e FROM Event e WHERE e.status = 'APPROVED' AND (" +
             "LOWER(e.eventName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +

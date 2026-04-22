@@ -40,6 +40,18 @@ public class Admin_DashboardServiceImpl implements Admin_DashboardService {
     public void updateRegistrationStatus(Long registrationId, Event_Registation.RegistrationStatus status) {
         Event_Registation reg = eventRegistrationRepository.findById(registrationId)
                 .orElseThrow(() -> new RuntimeException("Registration not found: " + registrationId));
+
+        // If admin is approving a PENDING registration → expand capacity by 1
+        if (status == Event_Registation.RegistrationStatus.REGISTERED
+                && reg.getRegistrationStatus() == Event_Registation.RegistrationStatus.PENDING) {
+
+            Event event = reg.getEvent();
+            if (event.getExpectedAttendees() != null) {
+                event.setExpectedAttendees(event.getExpectedAttendees() + 1);
+                eventRepository.save(event);
+            }
+        }
+
         reg.setRegistrationStatus(status);
         eventRegistrationRepository.save(reg);
     }

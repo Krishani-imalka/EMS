@@ -86,21 +86,31 @@ public class Event_RegisterService {
             throw new IllegalStateException("You are already registered for this event.");
         }
 
-        // 7. ── CHECK: Capacity limit using expectedAttendees
+        // 7. ── SET STATUS based on capacity ──
+        Event_Registation.RegistrationStatus status;
+
         if (event.getExpectedAttendees() != null) {
-            long currentCount = registrationRepository.countByEventAndRegistrationStatusNot(
-                    event, Event_Registation.RegistrationStatus.CANCELLED);
-            if (currentCount >= event.getExpectedAttendees()) {
-                throw new IllegalStateException(
-                        "This event is fully booked. Maximum capacity of "
-                                + event.getExpectedAttendees() + " attendees has been reached.");
+            long registeredCount = registrationRepository.countByEventAndRegistrationStatus(
+                    event, Event_Registation.RegistrationStatus.REGISTERED);
+
+            if (registeredCount < event.getExpectedAttendees()) {
+                // Within capacity → confirm immediately
+                status = Event_Registation.RegistrationStatus.REGISTERED;
+            } else {
+                // Over capacity → waitlist
+                status = Event_Registation.RegistrationStatus.PENDING;
             }
+        } else {
+            // No capacity limit set → confirm immediately
+            status = Event_Registation.RegistrationStatus.REGISTERED;
         }
+
 
         Event_Registation registration = new Event_Registation();
         registration.setEvent(event);
         registration.setStudent(student);
-        registration.setRegistrationStatus(Event_Registation.RegistrationStatus.PENDING);
+        registration.setRegistrationStatus(status);
+
 
         return registrationRepository.save(registration);
     }

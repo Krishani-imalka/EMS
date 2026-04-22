@@ -62,10 +62,16 @@ public class Event_RegisterController {
             }
 
             Event_Registation saved = registrationService.registerStudentForEvent(eventId, userId, username);
+
+            String message = saved.getRegistrationStatus() == Event_Registation.RegistrationStatus.REGISTERED
+                    ? "You have successfully registered for the event!"
+                    : "You are on the waitlist. Registration is pending as the event is currently full.";
+
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "registrationId", saved.getRegistrationId(),
-                    "message", "You have successfully registered for the event!"
+                    "status", saved.getRegistrationStatus().name(),
+                    "message", message
             ));
         } catch (IllegalArgumentException | IllegalStateException ex) {
             return ResponseEntity.badRequest().body(Map.of(

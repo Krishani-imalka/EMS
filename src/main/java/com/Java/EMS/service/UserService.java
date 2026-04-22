@@ -67,7 +67,7 @@ public class UserService {
         User user = new User();
         user.setUserId(userId);
         user.setUsername(username);
-        user.setPssaword("changeme123");
+        user.setPssaword("password123");
         user.setFullName(fullName);
         user.setEmail(email);
         user.setRole(userRole);
