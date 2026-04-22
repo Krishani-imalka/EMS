@@ -18,4 +18,6 @@ public interface Event_RegisterRepository extends JpaRepository <Event_Registati
             Event_Registation.RegistrationStatus status);
 
     long countByEventAndRegistrationStatusNot(Event event,Event_Registation.RegistrationStatus status);
+    long countByEventAndRegistrationStatus(Event event, Event_Registation.RegistrationStatus status);
 }
+
