@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <link rel="stylesheet" href="/CSS/Student_Dashboard.css">
+    <link rel="stylesheet" href="/CSS/Header.css"/>
+</head>
+
+<body>
+<div th:replace="~{Fragments/Header :: header('Student Dashboard')}"></div>
+
+<div class="hero">
+    <h1>Upcoming Events at Faculty of Technology</h1>
+    <p>Discover workshops, seminars, and events happening at UOR.</p>
+
+</div>
+
+<div class="home-body">
+
+    <!-- Featured Events (next 2 weeks) -->
+    <div>
+        <div class="section-title">Featured Events</div>
+        <div class="featured-grid" id="featuredGrid">
+            <div th:if="${#lists.isEmpty(featuredEvents)}" class="no-results">
+                No upcoming events in the next 2 weeks.
+            </div>
+            <div th:each="e : ${featuredEvents}" class="event-card">
+                <div class="card-banner"
+                     th:style="${e.bannerImage != null and e.bannerImage != ''}
+              ? 'background-image: url(/uploads/banners/' + ${e.bannerImage} + '); background-size: cover; background-position: center;'
+              : ''">
+
+                    <svg th:if="${e.bannerImage == null or e.bannerImage == ''}"
+                         width="28" height="28" fill="none" stroke="currentColor"
+                         stroke-width="1.5" viewBox="0 0 24 24">
+                        <rect x="3" y="4" width="18" height="18" rx="2"/>
+                        <path d="M16 2v4M8 2v4M3 10h18"/>
+                    </svg>
+
+                    <span th:if="${e.bannerImage == null or e.bannerImage == ''}"
+                          th:text="${e.category}">Category</span>
+                </div>
+                <div class="card-body">
+            <span class="badge"
+                  th:classappend="'badge-' + ${#strings.toLowerCase(e.category)}"
+                  th:text="${e.category}">Category</span>
+                    <div class="card-title" th:text="${e.eventName}">Event Name</div>
+                    <div class="card-meta">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <rect x="3" y="4" width="18" height="18" rx="2"/>
+                            <path d="M16 2v4M8 2v4M3 10h18"/>
+                        </svg>
+                        <span th:text="${#temporals.format(e.eventDate, 'MMM dd, yyyy')}">Date</span>
+                        &bull;
+                        <span th:text="${#temporals.format(e.startTime, 'hh:mm a')}">Time</span>
+                    </div>
+                    <div class="card-meta">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0z"/>
+                            <circle cx="12" cy="10" r="3"/>
+                        </svg>
+                        <span th:text="${e.location}">Location</span>
+                    </div>
+                    <button class="btn-view"
+                            th:attr="onclick=|showDetails(
+            '${e.eventName}',
+            '${#temporals.format(e.eventDate, 'MMM dd, yyyy')}',
+            '${#temporals.format(e.startTime, 'hh:mm a')} - ${#temporals.format(e.endTime, 'hh:mm a')}',
+            '${e.location}',
+            '${e.category}',
+            '${e.description}'
+        )|">
+                        View Details
+                    </button>
+                </div>
+            </div>
+
+            <!-- Event Details Popup -->
+            <div id="eventDetailsBox" class="event-details-box" style="display:none;">
+                <h2 id="d_name"></h2><br>
+                <p><strong>Date:</strong> <span id="d_date"></span></p>
+                <p><strong>Time:</strong> <span id="d_time"></span></p>
+                <p><strong>Location:</strong> <span id="d_location"></span></p>
+                <p><strong>Category:</strong> <span id="d_category"></span></p>
+
+                <p><strong>Description:</strong></p>
+                <p id="d_description"></p></br>
+
+                <button onclick="closeDetails()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming Schedule (after 2 weeks) -->
+    <div>
+        <div class="section-title">Upcoming Schedule</div>
+        <div class="schedule-list" id="scheduleList">
+            <div th:if="${#lists.isEmpty(scheduleEvents)}"
+                 style="color:#6b7280;font-size:.85rem">
+                No upcoming events.
+            </div>
+            <div th:each="e : ${scheduleEvents}" class="schedule-item">
+                <div class="date-chip">
+                    <span class="month" th:text="${#temporals.format(e.eventDate, 'MMM')}">Mon</span>
+                    <span class="day"   th:text="${#temporals.format(e.eventDate, 'dd')}">01</span>
+                </div>
+                <div class="schedule-info">
+                    <div class="s-title" th:text="${e.eventName}">Event Name</div>
+                    <div class="s-loc"   th:text="'@ ' + ${e.location}">Location</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- My Registered Events (Full Width Section) -->
+    <div style="grid-column: 1 / -1; margin-top: 1rem;">
+        <div class="section-title">My Registered Events</div>
+        <div class="registered-grid" style="display: grid; grid-template-columns: 1fr; gap: 1.2rem;">
+            <div th:if="${myRegistrations == null or #lists.isEmpty(myRegistrations)}"
+                 style="color:#6b7280; font-size:.85rem; padding: 20px; background: #fff; border-radius: 12px; grid-column: 1 / -1; text-align: center;">
+                You haven't registered for any events yet.
+            </div>
+            <div th:each="reg : ${myRegistrations}" class="schedule-item"
+                 style="align-items:center; gap:20px; padding:20px; background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); display: flex;">
+
+                <!-- Date Chip -->
+                <div class="date-chip" style="width: 50px; height: 50px;">
+            <span class="month" style="font-size: 0.7rem;"
+                  th:text="${#temporals.format(reg.event.eventDate, 'MMM')}">Mon</span>
+                    <span class="day" style="font-size: 1.2rem;"
+                          th:text="${#temporals.format(reg.event.eventDate, 'dd')}">01</span>
+                </div>
+
+                <!-- Event Info -->
+                <div class="schedule-info" style="flex:1;">
+                    <div class="s-title" style="font-size: 1rem; margin-bottom: 4px;" th:text="${reg.event.eventName}">Event Name</div>
+                    <div class="s-loc" style="font-size: 0.85rem;" th:text="'@ ' + ${reg.event.location}">Location</div>
+                    <div style="font-size:0.8rem; color:#6b7280; margin-top:6px; display: flex; gap: 12px;">
+                <span>
+                    <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 4px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span th:text="${#temporals.format(reg.event.startTime, 'hh:mm a')}"></span>
+                </span>
+                        <span>
+                    <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 4px;"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                    Registered: <span th:text="${#temporals.format(reg.registeredAt, 'MMM dd, yyyy')}"></span>
+                </span>
+                    </div>
+                </div>
+
+                <!-- Status & Action -->
+                <div style="display:flex; flex-direction:column; align-items:flex-end; gap:12px;">
+                <span th:text="${reg.registrationStatus}"
+                      th:classappend="${reg.registrationStatus.name() == 'REGISTERED'} ? 'badge-registered'
+                                    : (${reg.registrationStatus.name() == 'PENDING'} ? 'badge-pending'
+                                    : 'badge-cancelled')"
+                      style="font-size:0.75rem; font-weight:700; padding:6px 16px;
+                             border-radius:999px; text-transform:uppercase; letter-spacing: 0.5px;">
+                </span>
+
+                    <!-- Feedback Button -->
+                    <a th:if="${reg.registrationStatus.name() == 'REGISTERED'}"
+                       th:href="@{/student/feedback/{id}(id=${reg.event.eventId})}"
+                       style="font-size:0.75rem; color:#fff; background:#3b82f6; text-decoration:none; font-weight:600;
+                          padding:8px 16px; border-radius:8px; transition:all 0.2s; box-shadow: 0 2px 4px rgba(59,130,246,0.2);">
+                        Give Feedback
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Success Message -->
+    <div th:if="${param.feedbackSuccess}" class="flash flash-success"
+         style="position:fixed; bottom:20px; right:20px; z-index:1000; padding:12px 24px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1)">
+        Feedback submitted successfully!
+    </div>
+
+
+</div><!-- end home-body -->
+
+</body>
+<script>
+    function showDetails(name, date, time, location, category, description) {
+
+        document.getElementById("d_name").innerText = name;
+        document.getElementById("d_date").innerText = date;
+        document.getElementById("d_time").innerText = time;
+        document.getElementById("d_location").innerText = location;
+        document.getElementById("d_category").innerText = category;
+        document.getElementById("d_description").innerText = description;
+
+        document.getElementById("eventDetailsBox").style.display = "block";
+    }
+
+    function closeDetails() {
+        document.getElementById("eventDetailsBox").style.display = "none";
+    }
+</script>
+</html>

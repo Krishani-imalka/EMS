@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Give Feedback - EMS</title>
+    <link rel="stylesheet" href="/CSS/Header.css"/>
+    <link rel="stylesheet" href="/CSS/Feedback.css">
+</head>
+<body>
+<div th:replace="~{Fragments/Header :: header('Event Feedback')}"></div>
+
+<div class="feedback-container">
+    <div class="feedback-header">
+        <h1 th:text="'Feedback for ' + ${event.eventName}">Event Name</h1>
+        <p>Your feedback helps us improve future events!</p>
+    </div>
+
+    <div th:if="${hasGivenFeedback}" class="success-message">
+        You have already submitted feedback for this event. You can update it below if you wish.
+    </div>
+
+    <form th:action="@{/student/feedback/submit}" method="post">
+        <input type="hidden" name="eventId" th:value="${event.eventId}">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf != null}"/>
+
+        <div class="form-group">
+            <label>Rating</label>
+            <div class="rating-stars">
+                <input type="radio" id="star5" name="rating" value="5" required/><label for="star5" title="5 stars"></label>
+                <input type="radio" id="star4" name="rating" value="4"/><label for="star4" title="4 stars"></label>
+                <input type="radio" id="star3" name="rating" value="3"/><label for="star3" title="3 stars"></label>
+                <input type="radio" id="star2" name="rating" value="2"/><label for="star2" title="2 stars"></label>
+                <input type="radio" id="star1" name="rating" value="1"/><label for="star1" title="1 star"></label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="comment">Your Comments (Optional)</label>
+            <textarea id="comment" name="comment" class="form-textarea" placeholder="What did you think about the event?"></textarea>
+        </div>
+
+        <button type="submit" class="btn-submit">Submit Feedback</button>
+    </form>
+</div>
+
+</body>
+</html>
