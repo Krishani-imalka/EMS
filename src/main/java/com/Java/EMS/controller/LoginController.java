@@ -2,12 +2,12 @@ package com.Java.EMS.controller;
 
 import com.Java.EMS.entity.User;
 import com.Java.EMS.repository.UserRepository;
+import com.Java.EMS.service.PasswordEncoderService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
 
 import java.util.Optional;
 
@@ -38,12 +38,11 @@ public class LoginController {
 
             User user = optionalUser.get();
 
-            boolean passwordMatch = user.getPssaword().equals(password);
+            boolean passwordMatch = PasswordEncoderService.getInstance().matches(password, user.getPssaword());
             boolean roleMatch     = user.getRole().name().equalsIgnoreCase(role);
             boolean isActive      = user.getStatus() == User.Status.ACTIVE;
 
             if (passwordMatch && roleMatch && isActive) {
-                // ── Save user info in session ──────────────────────────────
                 session.setAttribute("loggedInUser", user);
                 session.setAttribute("loggedInUserId",   user.getUserId());
                 session.setAttribute("loggedInUsername", user.getUsername());
@@ -58,7 +57,6 @@ public class LoginController {
                 }
             }
 
-            // Give specific error messages
             if (!passwordMatch) {
                 model.addAttribute("error", "Incorrect password.");
             } else if (!roleMatch) {
@@ -74,13 +72,12 @@ public class LoginController {
         return "/Fragments/Login_page";
     }
 
-    // ── Step 1: Show forgot password form ────────────────────────────────────
     @GetMapping("/forgot-password")
     public String showForgotPassword() {
         return "Fragments/Forgot_password";
     }
 
-    // ── Step 2: Verify userId + email ─────────────────────────────────────────
+
     @PostMapping("/forgot-password/verify")
     public String verifyIdentity(
             @RequestParam String userid,
@@ -104,7 +101,6 @@ public class LoginController {
         return "Fragments/Forgot_password";
     }
 
-    // ── Step 3: Show reset form ───────────────────────────────────────────────
     @GetMapping("/forgot-password/reset")
     public String showResetForm(HttpSession session) {
         if (session.getAttribute("resetUserId") == null) {
@@ -113,7 +109,6 @@ public class LoginController {
         return "Fragments/Reset_password";
     }
 
-    // ── Step 4: Save new password to DB ──────────────────────────────────────
     @PostMapping("/forgot-password/reset")
     public String resetPassword(
             @RequestParam String newPassword,
@@ -137,11 +132,10 @@ public class LoginController {
             return "Fragments/Reset_password";
         }
 
-        // ✅ Find user and update password column in DB
         Optional<User> optionalUser = userRepository.findById(resetUserId);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
-            user.setPssaword(newPassword);       // updates "password" column via setPssaword()
+            user.setPssaword(PasswordEncoderService.getInstance().encode(newPassword));     // updates "password" column via setPssaword()
             userRepository.save(user);           // saves to DB
         }
 

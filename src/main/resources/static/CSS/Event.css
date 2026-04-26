@@ -777,3 +777,51 @@ td {
 .row-clash {
   background-color: #fffbea !important;
 }
+/* Star Rating in Table */
+.star-rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    color: #f59e0b;
+}
+.star-rating svg {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+}
+.rating-value {
+    margin-left: 4px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #475569;
+}
+
+/* Modal Feedback Section */
+.modal-feedback-section {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1.5px solid #e2e8f0;
+}
+.feedback-item {
+    padding: 10px;
+    border-bottom: 1px solid #f1f5f9;
+}
+.feedback-item:last-child {
+    border-bottom: none;
+}
+.feedback-user {
+    font-weight: 700;
+    font-size: 0.82rem;
+    color: #1e293b;
+}
+.feedback-comment {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-top: 4px;
+    line-height: 1.4;
+}
+.feedback-meta {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-top: 4px;
+}

@@ -50,7 +50,7 @@ public class UserService {
         String userId = "U" + String.format("%03d", nextNumber);
 
 
-        // Generate unique username from fullName
+
         String baseUsername = fullName.toLowerCase()
                 .replaceAll("\\s+", ".")
                 .replaceAll("[^a-z0-9.]", "");
@@ -63,11 +63,13 @@ public class UserService {
             username = baseUsername + suffix++;
         }
 
+        String hashed = PasswordEncoderService.getInstance().encode("password123");
+
         // Build and save user
         User user = new User();
         user.setUserId(userId);
         user.setUsername(username);
-        user.setPssaword("password123");
+        user.setPssaword(hashed);
         user.setFullName(fullName);
         user.setEmail(email);
         user.setRole(userRole);
