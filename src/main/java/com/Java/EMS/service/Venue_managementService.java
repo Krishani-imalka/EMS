@@ -1,6 +1,7 @@
 package com.Java.EMS.service;
 
 import com.Java.EMS.entity.Venue;
+import com.Java.EMS.repository.VenueRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
